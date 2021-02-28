@@ -4,4 +4,6 @@ TGEAR = 64.94*THTL;
 else
 TGEAR = 217.38*THTL-117.38;
 end
-end
+% Checked for accuracy with the stevens model.
+
+ 
