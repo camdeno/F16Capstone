@@ -1,0 +1,48 @@
+<?xml version="1.0"?>
+
+<PropertyList>
+
+ <sim>
+  <description>F-16 JSBSim</description>
+  <author>Minh Le</author>
+  <status>production</status>
+  <rating>
+    <FDM type="int">3</FDM>
+    <systems type="int">4</systems>
+    <cockpit type="int">4</cockpit>
+    <model type="int">4</model>
+  </rating>
+  <flight-model>jsb</flight-model>
+  <aero>RC-f16</aero>
+  <variant-id type="int">5</variant-id>
+  <variant-of>RC-f16</variant-of>
+
+  <startup>
+   <splash-texture>Aircraft/f16/f16-splash.png</splash-texture>
+  </startup>
+  
+  <systems>
+   <autopilot>
+    <path>Aircraft/f16/Systems/110-autopilot.xml</path>
+   </autopilot>
+   <hook>
+    <path>Aircraft/f16/Systems/hook.xml</path>
+   </hook>
+   <pushback>
+    <path>Aircraft/f16/Systems/pushback.xml</path>
+   </pushback>
+  </systems>
+
+  <model>
+   <path archive="y">Aircraft/f16/Models/F-16.xml</path>
+  </model>
+
+ </sim>
+ 
+ <engines>
+    <engine>
+      <rated-mil-dry type="double">17800</rated-mil-dry>
+    </engine>
+  </engines>
+
+</PropertyList>
