@@ -1,0 +1,57 @@
+<?xml version="1.0"?>
+ 
+<PropertyList>
+
+  <!-- Supplier list -->
+
+  <supplier>
+    <name>Lipo Battery</name>
+    <prop>/systems/electrical/suppliers/battery[0]</prop>
+    <kind>battery</kind>
+    <volts>22.2</volts>
+    <amps>3.2</amps>  
+  </supplier>
+
+  <bus>
+    <name>Master Bus</name>
+    <prop>/systems/electrical/outputs/bus[0]</prop>
+    <prop>/systems/electrical/outputs/transponder</prop>
+  </bus>
+
+  <!-- Generic Outputs -->
+
+  <output>
+    <name>Starter Power</name>
+    <prop>/systems/electrical/outputs/starter[0]</prop>
+  </output>
+
+  <!-- connect in power sources -->
+
+  <connector>
+    <input>Alternator 1</input>
+    <output>Master Bus</output>
+    <switch>
+      <prop>/controls/engines/engine[0]/master-alt</prop>
+    </switch>
+  </connector>
+
+  <connector>
+    <input>Battery 1</input>
+    <output>Master Bus</output>
+    <switch>
+      <prop>/controls/engines/engine[0]/master-bat</prop>
+    </switch>
+  </connector>
+
+  <!-- connect starter output -->
+
+  <connector>
+    <input>Master Bus</input>
+    <output>Starter 1 Power</output>
+    <switch>
+      <prop>/controls/engines/engine[0]/starter</prop>
+      <initial-state>off</initial-state>
+    </switch>
+  </connector>
+
+</PropertyList>
