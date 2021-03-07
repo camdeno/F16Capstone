@@ -13,4 +13,5 @@ k=k+3;
 s=a(k)+abs(DA)*(a(l)-a(k));
 czz=s*(1-(Beta/57.3)^2)-.19*(EL/25);
 % Checked for accuracy with the Stevens Model
+% This has been double checked for accuracy
 end

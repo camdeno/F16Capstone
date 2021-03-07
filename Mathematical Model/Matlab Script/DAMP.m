@@ -23,4 +23,5 @@ for i=1:9
 D(i)=a(k,i)+abs(da)*(a(l,i)-a(k,i));
 end
 % Checked for accuracy with the stevens model.
+% Double Checked for accuracy 
 end

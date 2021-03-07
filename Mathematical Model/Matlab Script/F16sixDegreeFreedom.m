@@ -16,9 +16,10 @@ function xd = F16sixDegreeFreedom(x,u)
    B     = 30;                      % Span
    CBAR  = 11.32;                   % Mean Aerodynamic Chord
    XCGR  = 0.35;                    % x-coordinates of the reference cofg position
-   XCG   = .35;                     % Paramater from Testing Function
+   XCG   = 0.4;                     % Paramater from Testing Function
    HX    = 160;                     % Engine angular momentum (slug-ft^2/s)
    RTOD  = 57.29578;                % Radians to Degrees
+   RM    = 1.57e-3;                 %
    
  % Parameters
    AXX      = 9496.0;               % Moment of inertia Jx
@@ -71,7 +72,7 @@ function xd = F16sixDegreeFreedom(x,u)
     DRdr    = Rdr/30;
     CLT     = CL(Alpha,Beta) + DLDA(Alpha,Beta)*DAil + DLDR(Alpha,Beta)*DRdr; % Non-Dimensional Moment Coefficient X
     CMT     = CM(Alpha,Elev);                                                 % Non-Dimensional Moment Coefficient Y
-    CNT     = CN(Alpha,Beta) + DNDA(Alpha,Beta)*DAil + DLDR(Alpha,Beta)*DRdr; % Non-Dimensional Moment Coefficient Z
+    CNT     = CN(Alpha,Beta) + DNDA(Alpha,Beta)*DAil + DNDR(Alpha,Beta)*DRdr; % Non-Dimensional Moment Coefficient Z
     
 % Add Damping Derivatives
     TVT = 0.5/VT;                                                   % 1/(2*Freestream Airspeed)
@@ -81,9 +82,9 @@ function xd = F16sixDegreeFreedom(x,u)
     CXT = CXT + CQ*D(1);                                            % Total force Coefficient X
     CYT = CYT + B2V * (D(2)*R + D(3)*P);                            % Total force Coefficient Y
     CZT = CZT + CQ*D(4);                                            % Total force Coefficient Z
-    CLT = CLT + B2V*(D(5)*R + D(6)*P);                              % Total Moment Coefficient X
-    CMT = CMT + CQ*D(7) + CZT*(XCGR-XCG);                           % Total Moment Coefficient Y
-    CNT = CNT + B2V*(D(8)*R + D(9)*P) - CYT*(XCGR-XCG)*(CBAR/B);    % Total Moment Coefficient Z
+    CLT2 = CLT + B2V*(D(5)*R + D(6)*P);                              % Total Moment Coefficient X
+    CMT2 = CMT + CQ*D(7) + CZT*(XCGR-XCG);                           % Total Moment Coefficient Y
+    CNT2 = CNT + B2V*(D(8)*R + D(9)*P) - CYT*(XCGR-XCG)*(CBAR/B);    % Total Moment Coefficient Z
     
 % Declarations for 6-DoF Equations
     CBTA = cos(x(3));
@@ -98,16 +99,16 @@ function xd = F16sixDegreeFreedom(x,u)
     CPSI = cos(Psi);            % cos of Psi
     QS   = Qbar * S;            % Dynamic Pressure * Wing Planform Area
     QSB  = QS * B;              % DP*WPA*Wingspan
-    RMQS = QS/MASS;             % DP*WPA/Mass
+    RMQS = QS*RM;               % DP*WPA/Mass
     GCTH = GD*CTH;              % Gravity Down*cos(Theta)
     QSPH = Q*SPH;               % Angular Velocity * Sin(Phi)
     AY   = RMQS*CYT;            % ((DP*WPA)/Mass)* Force Coefficient Y
     AZ   = RMQS*CZT;            % ((DP*WPA)/Mass)* Force Coefficient Z
     
 % 6-DoF Equations, Table 2.5-1 Stevens and Lewis
-
+    
 % Force Equations
-    UDot  =  R*V - Q*W - GD*STH + (QS*CXT + T)/MASS; % (XA + XT)
+    UDot  =  R*V - Q*W - GD*STH + (QS*CXT + T)*RM; 
     VDot  =  P*W - R*U + GCTH * SPH + AY;
     WDot  =  Q*U - P*V + GCTH * CPH + AZ;
     DUM   = (U*U + W*W);
@@ -121,9 +122,9 @@ function xd = F16sixDegreeFreedom(x,u)
     xd(6) = (QSPH + R*CPH)/CTH;
 
  % Moment Equations
-    Roll    = QSB*CLT;
-    Pitch   = QS*CBAR*CMT;
-    Yaw     = QSB*CNT;
+    Roll    = QSB*CLT2;
+    Pitch   = QS*CBAR*CMT2;
+    Yaw     = QSB*CNT2;
     PQ      = P*Q;
     QR      = Q*R;
     QHX     = Q*HX;

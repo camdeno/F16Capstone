@@ -21,9 +21,9 @@ if(m==0),m=1;end
 if(m>=6),m=5;end
 db=s-m;
 n=m+fix(1.1*sign(db));
-%l=l+3;
-%k=k+3;
-%m=m+1;
+l=l+3;
+k=k+3;
+m=m+1;
 n=n+1;
 t=a(k,m);
 u=a(k,n);

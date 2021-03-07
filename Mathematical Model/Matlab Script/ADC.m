@@ -6,9 +6,10 @@ if (alt >= 35000.0)
     T= 390.0;
 end
 RHO = R0 * (TFAC^4.14); % density
-AMACH = VT/sqrt(1.4*1716.3*T); % Mach number
+AMACH = VT/sqrt(1.4*1716.3*T) % Mach number
 QBAR  = 0.5*RHO*VT*VT; % dynamic pressure
 % PS = 1715.0 * RHO * T ! static pressure
 return
 % Checked for accuracy with the stevens model.
+% Double Checked for accuracy with the stevens model.
 end

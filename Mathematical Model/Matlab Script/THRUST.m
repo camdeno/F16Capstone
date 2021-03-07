@@ -25,11 +25,12 @@ c=[20000 15000 10800 7000 4000 2500
 26070 21075 15975 11115 6860 3950
 28886 23319 18300 13484 8642 5057]';
 
-%if(alt<0),alt=0.01;end
-H=.0001*alt;
-I=fix(H);
-if(I>=5),I=4;end
-dh=H-I;
+
+if(alt<0),alt=0.01;end
+h=.0001*alt;
+i=fix(h);
+if(i>=5),i=4;end
+dh=h-i;
 rm=5*RMACH;
 m=fix(rm);
 if(m>=5);m=4;end
@@ -37,20 +38,20 @@ if(m>=5);m=4;end
 dm=rm-m;
 cdh=1-dh;
 
- I=I+1;
- m=m+1;
+i=i+1;
+m=m+1;
 
-s=b(I,m)*cdh+b(I+1,m)*dh;
-t=b(I,m+1)*cdh+b(I+1,m+1)*dh;
+s=b(i,m)*cdh+b(i+1,m)*dh;
+t=b(i,m+1)*cdh+b(i+1,m+1)*dh;
 tmil=s+(t-s)*dm;
 if(POW<50)
-s=a(I,m)*cdh+a(I+1,m)*dh;
-t=a(I,m+1)*cdh+a(I+1,m+1)*dh;
+s=a(i,m)*cdh+a(i+1,m)*dh;
+t=a(i,m+1)*cdh+a(i+1,m+1)*dh;
 tidl=s+(t-s)*dm;
-THRUST = tidl+(tmil-tidl)*POW*.02;
+THRUST=tidl+(tmil-tidl)*POW*.02;
 else
-s=c(I,m)*cdh+c(I+1,m)*dh;
-t=c(I,m+1)*cdh+c(I+1,m+1)*dh;
+s=c(i,m)*cdh+c(i+1,m)*dh;
+t=c(i,m+1)*cdh+c(i+1,m+1)*dh;
 tmax=s+(t-s)*dm;
 THRUST=tmil+(tmax-tmil)*(POW-50)*.02;
 end

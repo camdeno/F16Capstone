@@ -29,4 +29,5 @@ v= t+abs(DA)*(a(l,m)-t);
 w=u+abs(DA)*(a(l,n)-u);
 cmm=v+(w-v)*abs(de);
 % Checked for accuracy with the stevens model
+% Double Checked for accuracy with the stevens model
 end

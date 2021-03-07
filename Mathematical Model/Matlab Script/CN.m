@@ -30,5 +30,6 @@ v=t+abs(DA)*(a(l,m)-t);
 w=u+abs(DA)*(a(l,n)-u);
 dum=v+(w-v)*abs(db);
 cnn=dum*sign(Beta);
+
 % Checked for accuracy with the stevens model.
 end

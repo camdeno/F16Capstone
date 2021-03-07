@@ -1,6 +1,3 @@
-% D1= CXq; D2= CYr; D3 = CYp; D4= CZq; D5= Clr; D6= Clp
-% D7= Cmq; D8= Cnr; D9 = Cnp;
-
 function CXX= CX(Alpha,el)
 % Body-axis X Force
 a=[-.099 -.081 -.081 -.063 -.025 .044 .097 .113 .145 .167 .174 .166
@@ -11,8 +8,8 @@ a=[-.099 -.081 -.081 -.063 -.025 .044 .097 .113 .145 .167 .174 .166
 % This has been checked for accuracy with the Stevens Table
 s=.2*Alpha;
 k=fix(s);
-if(k<=-2),k=-1;end
-if(k>=9),k=8;end
+if(k<=-2),k=-1; end
+if(k>=9),k=8; end
 da=s-k;
 l=k+fix(1.1*sign(da));
 s=el/12;
@@ -29,6 +26,6 @@ t=a(k,m);
 u=a(k,n);
 v=t+abs(da)*(a(l,m)-t);
 w=u+abs(da)*(a(l,n)-u);
-CXX = v+(w-v)*abs(de); %.0574 
-
+CXX = v+(w-v)*abs(de); 
+% This has been double checked. 
 end

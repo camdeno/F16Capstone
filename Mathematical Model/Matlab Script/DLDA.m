@@ -19,7 +19,7 @@ m=fix(s);
 if(m ==-3),m=-2;end
 if(m >= 3),m=2;end
 db=s-m;
-n=m+fix(1.1*sign(db))
+n=m+fix(1.1*sign(db));
 l=l+3;
 k=k+3;
  m=m+4;
@@ -30,3 +30,4 @@ v=t+abs(DA)*(a(l,m)-t);
 w=u+abs(DA)*(a(l,n)-u);
 % Checked for accuracy with the stevens model.
 DLDA = v+(w-v)*abs(db);
+% Double checked for accuracy with the stevens model. 
