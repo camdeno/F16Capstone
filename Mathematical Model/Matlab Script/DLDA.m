@@ -24,6 +24,10 @@ l=l+3;
 k=k+3;
  m=m+4;
  n=n+4;
+if (m >= 7), m=7; end 
+if (m < 1 ), m=1; end
+if (n < 1 ), n=1; end
+if (k >= 12), k=12; end
 t=a(k,m);
 u=a(k,n);
 v=t+abs(DA)*(a(l,m)-t);
