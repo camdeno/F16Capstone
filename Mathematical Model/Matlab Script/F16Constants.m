@@ -20,23 +20,24 @@ clc
 %     alt         = x(12);         % Altitude 
 %     POW         = x(13);         % Engine Power State 
 % 
-%     Thtl = u(1);                % Throttle
-%     Elev = u(2);                % Elevator
-%     Ail  = u(3);                % Aileron
-%     Rdr  = u(4);                % Rudder
+%     Thtl        = u(1);          % Throttle
+%     Elev        = u(2);          % Elevator
+%     Ail         = u(3);          % Aileron
+%     Rdr         = u(4);          % Rudder
 
 % initial conditions
-x0 = [500; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 1000; 100;];
+x0 = [80; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 500; 100;];
 
 % u - Control Vector
-u = [ .7; 0; 0; 0;];
+u = [ 0; 0; 0; 0;];
 
 % Simulation Time
-TF = 5; %Sec
+TF = 7; %Sec
 
 %% Run Simulation
-
-sim('Testsimulation.slx')
+    % To simulate Small Scale replace sim file with F16Simulation_SC
+    % To simulate Large Scale replace sim file with Testsimulation
+sim('F16Simulation_SC.slx')
 
 %% Plot Results
 t = ans.simout.Time;
@@ -63,23 +64,23 @@ u4 = ans.U.Data(:,4);
 
 %% Plot State Variable Results
 figure;
-sgtitle('State Variables')
+sgtitle('State Variables Small Scale - Steady State')
 
-subplot(4,4,1)
+subplot(5,3,1)
 plot(t,x1)
 grid on
 title('Airspeed')
 xlabel('Time (sec)')
 ylabel ('Velocity (ft/s)')
 
-subplot(4,4,2)
+subplot(5,3,2)
 plot(t,x2)
 grid on
 title('Alpha')
 xlabel('Time (sec)')
 ylabel('Degrees')
 
-subplot(4,4,3)
+subplot(5,3,3)
 plot(t,x3)
 ylim([-2 2])
 grid on
@@ -87,15 +88,15 @@ title('Beta')
 xlabel('Time (sec)')
 ylabel('Degrees')
 
-subplot(4,4,4)
+subplot(5,3,4)
 plot(t,x4)
 grid on
-ylim ([-4 4])
+ylim ([-4 8])
 title('Phi')
 xlabel('Time (sec)')
 ylabel('Degrees')
 
-subplot(4,4,5)
+subplot(5,3,5)
 plot(t,x5)
 grid on
 title('Theta')
@@ -103,49 +104,49 @@ ylim ([-2 2])
 xlabel('Time (sec)')
 ylabel('Degrees')
 
-subplot(4,4,6)
+subplot(5,3,6)
 plot(t,x6)
-ylim([-4 4])
+ylim([-4 8])
 grid on
 title('Psi')
 xlabel('Time (sec)')
 ylabel('Degrees')
 
-subplot(4,4,7)
+subplot(5,3,7)
 plot(t,x7)
 ylim ([-2 2])
 grid on
 title('P')
 xlabel('Time (sec)')
 
-subplot(4,4,8)
+subplot(5,3,8)
 plot(t,x8)
 ylim ([-2 2])
 grid on
 title('Q')
 xlabel('Time (sec)')
 
-subplot(4,4,9)
+subplot(5,3,9)
 plot(t,x9)
 ylim ([-2 2])
 grid on
 title('R')
 xlabel('Time (sec)')
 
-subplot(4,4,10)
+subplot(5,3,10)
 plot(t,x10)
 grid on
 title('North Displacement')
 xlabel('Time (sec)')
 
-subplot(4,4,11)
+subplot(5,3,11)
 plot(t,x11)
 grid on
 title('East Displacement')
 xlabel('Time (sec)')
 
 
-subplot(4,4,12)
+subplot(5,3,12)
 plot(t,x12)
 ylim([0 2000])
 grid on
@@ -154,7 +155,7 @@ xlabel('Time (sec)')
 ylabel('Height (ft)')
 
 
-subplot(4,4,13)
+subplot(5,3,13)
 plot(t,x13)
 grid on
 title('Engine Power')
