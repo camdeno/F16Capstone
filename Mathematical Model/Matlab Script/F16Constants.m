@@ -26,19 +26,25 @@ clc
 %     Rdr         = u(4);          % Rudder
 
 % initial conditions
-x0 = [80; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 500; 100;];
+%x0 = [100; 0;0; 0; 0;0; 0; 0; 0; 0; 0; 1000; 0;];
+x0 = [500; 0;0; 0; 0;0; 0; 0; 0; 0; 0; 1000; 0;];
 
 % u - Control Vector
-u = [ 0; 0; 0; 0;];
+u = [ 0; 20; 20; 0;];
 
 % Simulation Time
-TF = 7; %Sec
-
+TF = 30;
 %% Run Simulation
     % To simulate Small Scale replace sim file with F16Simulation_SC
     % To simulate Large Scale replace sim file with Testsimulation
-sim('F16Simulation_SC.slx')
-
+disp('Do you want to run the Full Scale model or the Small Scale Model?' )
+disp('Input 1 to run the Small Scale or Input 2 to run the Large Scale: ')
+x = input(' ');
+if (x == 1)
+    sim('F16Simulation_SC.slx')
+elseif (x == 2)
+    sim('Testsimulation.slx')
+end 
 %% Plot Results
 t = ans.simout.Time;
 
@@ -64,7 +70,11 @@ u4 = ans.U.Data(:,4);
 
 %% Plot State Variable Results
 figure;
-sgtitle('State Variables Small Scale - Steady State')
+if (x==1)
+    sgtitle('State Variables Small Scale')
+elseif (x==2)
+    sgtitle('State Variables Large Scale')
+end
 
 subplot(5,3,1)
 plot(t,x1)
@@ -82,7 +92,7 @@ ylabel('Degrees')
 
 subplot(5,3,3)
 plot(t,x3)
-ylim([-2 2])
+%ylim([-2 2])
 grid on
 title('Beta')
 xlabel('Time (sec)')
@@ -91,46 +101,49 @@ ylabel('Degrees')
 subplot(5,3,4)
 plot(t,x4)
 grid on
-ylim ([-4 8])
+%ylim ([-4 8])
 title('Phi')
 xlabel('Time (sec)')
-ylabel('Degrees')
+ylabel('rad')
 
 subplot(5,3,5)
 plot(t,x5)
 grid on
 title('Theta')
-ylim ([-2 2])
+%ylim ([-2 2])
 xlabel('Time (sec)')
-ylabel('Degrees')
+ylabel('rad')
 
 subplot(5,3,6)
 plot(t,x6)
-ylim([-4 8])
+%ylim([-4 8])
 grid on
 title('Psi')
 xlabel('Time (sec)')
-ylabel('Degrees')
+ylabel('rad')
 
 subplot(5,3,7)
 plot(t,x7)
-ylim ([-2 2])
+%ylim ([-2 2])
 grid on
 title('P')
+ylabel('rad/s')
 xlabel('Time (sec)')
 
 subplot(5,3,8)
 plot(t,x8)
-ylim ([-2 2])
+%ylim ([-2 2])
 grid on
 title('Q')
 xlabel('Time (sec)')
+ylabel('rad/s')
 
 subplot(5,3,9)
 plot(t,x9)
-ylim ([-2 2])
+%ylim ([-2 2])
 grid on
 title('R')
+ylabel('rad/s')
 xlabel('Time (sec)')
 
 subplot(5,3,10)
@@ -148,12 +161,11 @@ xlabel('Time (sec)')
 
 subplot(5,3,12)
 plot(t,x12)
-ylim([0 2000])
+%ylim([0 2000])
 grid on
 title('Altitude')
 xlabel('Time (sec)')
 ylabel('Height (ft)')
-
 
 subplot(5,3,13)
 plot(t,x13)
@@ -161,9 +173,27 @@ grid on
 title('Engine Power')
 xlabel('Time (sec)')
 
+subplot(5,3,14)
+plot(x10,x11)
+grid on
+title('Flight Path')
+xlabel('North')
+ylabel('East')
+
+% figure;
+% title('3D Plot of Position')
+% plot(x11,x12,x13)
+% xlabel('North')
+% ylabel('East')
+% zlabel('Altitude')
+
 %% Plot Control Surfaces
 figure;
+if (x==1)
 sgtitle('Control Inputs Small Scale')
+elseif (x==2)
+sgtitle('Control Inputs Large Scale')
+end
 
 subplot(4,1,1)
 plot(t,u1)
@@ -194,5 +224,6 @@ grid on
 title('Rudder')
 xlabel('Time (sec)')
 ylabel('Degree')
+
 
 
