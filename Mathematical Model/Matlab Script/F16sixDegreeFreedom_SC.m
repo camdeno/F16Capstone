@@ -8,35 +8,36 @@ function xd = F16sixDegreeFreedom_SC(x,u)
 %    x - State Vector
 % OUTPUTS:
 %    xd - State Derivative Vector
-
+xd = [0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; ];
 % Constants
-    global AZ AY;
+  
     k1 = 0.0055;                    % Wing Area Constant
     k2 = 0.079;                     % Wingspan Constant
     k3 = 1.7965e-4;                 % Mass Scaling Factor
     
+    
  % Data
-   S     = 300*k1;                  % Wing Planform Area Multiplied by Scaling Factor
-   B     = 30*k2;                   % Span * Multiplied by Scaling Factor
-   CBAR  = 11.32;                   % Mean Aerodynamic Chord
-   XCGR  = 0.35;                    % x-coordinates of the reference cofg position
-   XCG   = 0.4;                     % Paramater from Testing Function
-   HX    = 160;                     % Engine angular momentum (slug-ft^2/s)
-   RTOD  = 57.29578;                % Radians to Degrees
-   RM    = 1.57e-3*k3;              %
+   S     = 300*k1;                   % Wing Planform Area Multiplied by Scaling Factor
+   B     = 2.71;                     % Span of small scale plane
+   CBAR  = 11.32;                    % Mean Aerodynamic Chord
+   XCGR  = 0.35;                     % x-coordinates of the reference cofg position
+   XCG   = 0.35;                     % Paramater from Testing Function
+   HX    = 160;                      % Engine angular momentum (slug-ft^2/s)
+   RTOD  = 57.29578;                 % Radians to Degrees
+   RM    = 1.57e-3;                  %
    
  % Parameters
-   AXX      = 9496.0*k3;               % Scaled Moment of inertia Jx
-   AYY      = 55814.0*k3;              % Scaled Moment of inertia Jy
-   AZZ      = 63100.0*k3;              % Scaled Moment of inertia Jz
-   AXZ      = 982.0*k3;                % Scaled Moment of inertia Jxz
+   AXX      = 81.76;                   % Scaled Moment of inertia Jx
+   AYY      = 2000.72;                 % Scaled Moment of inertia Jy
+   AZZ      = 956.64;                  % Scaled Moment of inertia Jz
+   AXZ      = 0;                       % Scaled Moment of inertia Jxz
    AXZS     = AXZ^2;                   % Square of Jxz
    XPQ      = AXZ*(AXX-AYY+AZZ);       % Used to simplify Pdot/Rdot Equations
    GAM      = AXX*AZZ-AXZ^2;           % Gamma
    XQR      = AZZ*(AZZ-AYY)+AXZS;      % Used to simplify Pdot/Rdot Equations
    ZPQ      = (AXX-AYY)*AXX+AXZS;      % Used to simplify Rdot Equation 
    YPR      = AZZ - AXX;               % Used to simplify Qdot Equation
-   weight   = 25000.0*k3;              % F-16 Weight
+   weight   = 5.745247;                % F-16 Weight
    GD       = 32.17;                   % Gravity Acceleration ft/s^2
    MASS     = weight/GD;               % W=mg equation
  
@@ -45,9 +46,8 @@ function xd = F16sixDegreeFreedom_SC(x,u)
      Elev = u(2);                      % Elevator
      Ail  = u(3);                      % Aileron
      Rdr  = u(4);                      % Rudder
-
-% Used as a test of a function. 
-
+    
+    
 % State Vector
     VT          = x(1);          % Freestream Airspeed
     Alpha       = x(2)*RTOD;     % Angle of Attack normalized to Degrees
@@ -65,13 +65,13 @@ function xd = F16sixDegreeFreedom_SC(x,u)
     [Amach,Qbar] = ADC(VT,alt);              % Air Data Computer
     Cpow = TGEAR(Thtl);                      % Power Command vs Throttle
     xd(13) = PDOT(POW,Cpow);                 % Rate of Change of Power
-    T = THRUST(POW,alt,Amach);               % Engine Thrust Model
+    T =k3*THRUST(POW,alt,Amach);             % Engine Thrust Model
     
 
 % Look up tables and component buildup
-    CXT     = CX(Alpha,Elev);            % Non-Dimensional Force Coefficient X
-    CYT     = CY(Beta,Ail,Rdr);          % Non-Dimensional Force Coefficient Y
-    CZT     = CZ(Alpha,Beta,Elev);       % Non-Dimensional Force Coefficient Z
+    CXT     = CX(Alpha,Elev);                                                 % Non-Dimensional Force Coefficient X
+    CYT     = CY(Beta,Ail,Rdr);                                               % Non-Dimensional Force Coefficient Y
+    CZT     = CZ(Alpha,Beta,Elev);                                            % Non-Dimensional Force Coefficient Z
     DAil    = Ail/20;
     DRdr    = Rdr/30;
     CLT     = CL(Alpha,Beta) + DLDA(Alpha,Beta)*DAil + DLDR(Alpha,Beta)*DRdr; % Non-Dimensional Moment Coefficient X
@@ -103,7 +103,7 @@ function xd = F16sixDegreeFreedom_SC(x,u)
     CPSI = cos(Psi);            % cos of Psi
     QS   = Qbar * S;            % Dynamic Pressure * Wing Planform Area
     QSB  = QS * B;              % DP*WPA*Wingspan
-    RMQS = QS*RM;               % DP*WPA/Mass
+    RMQS = QS/MASS;               % DP*WPA/Mass (QS*RM) - -- - - -
     GCTH = GD*CTH;              % Gravity Down*cos(Theta)
     QSPH = Q*SPH;               % Angular Velocity * Sin(Phi)
     AY   = RMQS*CYT;            % ((DP*WPA)/Mass)* Force Coefficient Y
@@ -112,7 +112,7 @@ function xd = F16sixDegreeFreedom_SC(x,u)
 % 6-DoF Equations, Table 2.5-1 Stevens and Lewis
     
 % Force Equations
-    UDot  =  R*V - Q*W - GD*STH + (QS*CXT + T)*RM; 
+    UDot  =  R*V - Q*W - GD*STH + (QS*CXT + T)/MASS; % changed to mass from RM to fit Stevens - - - -
     VDot  =  P*W - R*U + GCTH * SPH + AY;
     WDot  =  Q*U - P*V + GCTH * CPH + AZ;
     DUM   = (U*U + W*W);
@@ -156,14 +156,5 @@ function xd = F16sixDegreeFreedom_SC(x,u)
     xd(10) = U*S1  + V*S3 + W*S6; % North speed
     xd(11) = U*S2  + V*S4 + W*S7; % East speed
     xd(12) = U*STH - V*S5 - W*S8; % Vertical speed
-    
 
-
-    
-
-
-
- 
- 
- 
- 
+     xd = [xd(1); xd(2); xd(3); xd(4); xd(5); xd(6); xd(7); xd(8); xd(9); xd(10); xd(11); xd(12); xd(13); ];

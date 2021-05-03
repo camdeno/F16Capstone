@@ -10,13 +10,13 @@ function xd = F16sixDegreeFreedom(x,u)
 %    xd - State Derivative Vector
 
 % Constants
-    global AZ AY;
+    xd = [0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; 0; ];
  % Data
    S     = 300;                     % Wing Planform Area
    B     = 30;                      % Span
    CBAR  = 11.32;                   % Mean Aerodynamic Chord
    XCGR  = 0.35;                    % x-coordinates of the reference cofg position
-   XCG   = 0.4;                     % Paramater from Testing Function
+   XCG   = 0.35;                     % Paramater from Testing Function
    HX    = 160;                     % Engine angular momentum (slug-ft^2/s)
    RTOD  = 57.29578;                % Radians to Degrees
    RM    = 1.57e-3;                 %
@@ -42,8 +42,6 @@ function xd = F16sixDegreeFreedom(x,u)
      Ail  = u(3);                % Aileron
      Rdr  = u(4);                % Rudder
 
-% Used as a test of a function. 
-
 % State Vector
     VT          = x(1);          % Freestream Airspeed
     Alpha       = x(2)*RTOD;     % Angle of Attack normalized to Degrees
@@ -57,6 +55,81 @@ function xd = F16sixDegreeFreedom(x,u)
     alt         = x(12);         % Altitude 
     POW         = x(13);         % Engine Power State 
 
+% Specify Flight Envelope Limits
+
+    VT_Max = 900;    % ft/s
+    VT_Min = 300;    % ft/s
+    
+    Alpha_Max = 45;  % deg
+    Alpha_Min = -10; % deg
+    
+    Beta_Max = 30;   % deg
+    Beta_Min = -30;  % deg
+    
+    Alt_Max = 10000; % ft
+    Alt_Min = 0;     % ft
+    
+    if(VT>VT_Max)
+        VT = VT_Max;
+    elseif(VT<VT_Min)
+        VT = VT_Min;
+    end    
+    
+    if(Alpha>Alpha_Max)
+        Alpha = Alpha_Max;
+    elseif(Alpha<Alpha_Min)
+        Alpha = Alpha_Min;
+    end    
+    
+    if(Beta>Beta_Max)
+        Beta = Beta_Max;
+    elseif(Beta<Beta_Min)
+        Beta = Beta_Min;
+    end    
+ 
+    if(alt>Alt_Max)
+        alt = Alt_Max;
+    elseif(alt<Alt_Min)
+        alt = Alt_Min;
+    end    
+% Specify Control Limits
+    Thtl_Max = 1;
+    Thtl_Min = 0;
+    
+    Elev_Max = 25;
+    Elev_Min = -25;
+    
+    Ail_Max = 21.5;
+    Ail_Min = -21.5;
+    
+    Rdr_Max = 30;
+    Rdr_Min = -30;
+    
+    if(Thtl>Thtl_Max)
+        Thtl = Thtl_Max;
+    elseif(Thtl<Thtl_Min)
+        Thtl = Thtl_Min;
+    end
+    
+    if(Elev>Elev_Max)
+        Elev = Elev_Max;
+    elseif(Thtl<Elev_Min)
+        Elev = Elev_Min;
+    end
+    
+    if(Ail>Ail_Max)
+        Ail = Ail_Max;
+    elseif(Ail<Ail_Min)
+        Ail = Ail_Min;
+    end
+    
+    if(Rdr>Rdr_Max)
+        Rdr = Rdr_Max;
+    elseif(Rdr<Rdr_Min)
+        Rdr = Rdr_Min;
+    end    
+    
+    
 % Air data computer and engine model 
     [Amach,Qbar] = ADC(VT,alt);              % Air Data Computer
     Cpow = TGEAR(Thtl);                      % Power Command vs Throttle
@@ -152,6 +225,8 @@ function xd = F16sixDegreeFreedom(x,u)
     xd(10) = U*S1  + V*S3 + W*S6; % North speed
     xd(11) = U*S2  + V*S4 + W*S7; % East speed
     xd(12) = U*STH - V*S5 - W*S8; % Vertical speed
+    
+    xd = [xd(1); xd(2); xd(3); xd(4); xd(5); xd(6); xd(7); xd(8); xd(9); xd(10); xd(11); xd(12); xd(13); ];
 
 
     

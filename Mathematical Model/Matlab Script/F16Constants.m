@@ -15,8 +15,8 @@ clc
 %     P           = x(7);          % Angular Velocity - X Component
 %     Q           = x(8);          % Angular Velocity - Y Component
 %     R           = x(9);          % Angular Velocity - Z Component
-%                 = x(10);         % North Displacement
-%                 = x(11);         % East Displacement
+%     Pn          = x(10);         % North Displacement
+%     Pe          = x(11);         % East Displacement
 %     alt         = x(12);         % Altitude 
 %     POW         = x(13);         % Engine Power State 
 % 
@@ -27,13 +27,13 @@ clc
 
 % initial conditions
 %x0 = [100; 0;0; 0; 0;0; 0; 0; 0; 0; 0; 1000; 0;];
-x0 = [500; 0;0; 0; 0;0; 0; 0; 0; 0; 0; 1000; 0;];
+x0 = [80; 0.038587835162713;  0;  0;  0.038587835162713;0; 0; 0; 0; 0; 0; 300; 0.008983182660417;];
 
 % u - Control Vector
-u = [ 0; 20; 20; 0;];
+u = [   0.769999999178608;-0.000000006832853; 0;  0;];
 
 % Simulation Time
-TF = 30;
+TF = 60;
 %% Run Simulation
     % To simulate Small Scale replace sim file with F16Simulation_SC
     % To simulate Large Scale replace sim file with Testsimulation
@@ -49,24 +49,24 @@ end
 t = ans.simout.Time;
 
 T=t;
-x1 = ans.simout.Data(:,1); 
-x2 = ans.simout.Data(:,2); 
-x3 = ans.simout.Data(:,3);
-x4 = ans.simout.Data(:,4); 
-x5 = ans.simout.Data(:,5); 
-x6 = ans.simout.Data(:,6); 
-x7 = ans.simout.Data(:,7); 
-x8 = ans.simout.Data(:,8); 
-x9 = ans.simout.Data(:,9); 
+x1  = ans.simout.Data(:,1); 
+x2  = ans.simout.Data(:,2); 
+x3  = ans.simout.Data(:,3);
+x4  = ans.simout.Data(:,4); 
+x5  = ans.simout.Data(:,5); 
+x6  = ans.simout.Data(:,6); 
+x7  = ans.simout.Data(:,7); 
+x8  = ans.simout.Data(:,8); 
+x9  = ans.simout.Data(:,9); 
 x10 = ans.simout.Data(:,10); 
 x11 = ans.simout.Data(:,11); 
 x12 = ans.simout.Data(:,12); 
 x13 = ans.simout.Data(:,13);
 
-u1 = ans.U.Data(:,1);
-u2 = ans.U.Data(:,2);
-u3 = ans.U.Data(:,3);
-u4 = ans.U.Data(:,4);
+u1  = ans.U.Data(:,1);
+u2  = ans.U.Data(:,2);
+u3  = ans.U.Data(:,3);
+u4  = ans.U.Data(:,4);
 
 %% Plot State Variable Results
 figure;
