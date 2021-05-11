@@ -1,6 +1,9 @@
 import requests
 import time
+import math
 from bs4 import BeautifulSoup
+
+from pymavlink import mavutil
 
 class FlightAxis:
     """
@@ -19,9 +22,16 @@ class FlightAxis:
     A typical performance measured on a reasonable desktop PC is:
     avg dt = 0.0042965165828869264[s], avg Freq = 232.746686928432
 
+    # Workflow:
+    1. get HIL_ACTUATOR_CONTROLS from PX4
+    2. exchange data with flight axis
+    3. send HIL_SENSOR and HIL_GPS to PX4
+
     """
     REALFLIGHT_URL = "http://127.0.0.1:18083"
     RC_CHANNLES = 12
+    PX4_DEVICE = 'tcpin:localhost:4560'
+    TIMEOUT_S = 0.05
 
     def getKeytable(self) -> dict:
         keytable = {
@@ -124,6 +134,8 @@ class FlightAxis:
         self.m_orientationQuaternion_W = 0.0
         self.m_flightAxisControllerIsActive = False
         self.m_resetButtonHasBeenPressed = False
+
+        self.connection = mavutil.mavlink_connection(FlightAxis.PX4_DEVICE)
 
     def enableRC(self, doPrint=False) -> bool:
         """
@@ -229,6 +241,91 @@ class FlightAxis:
                 tag_val = tag_val.capitalize()
             cmd = f"{v} = {tag_val}"
             exec(cmd)
+    
+    def getHilActuatorControls(self) -> bool:
+        """
+        Attempt to receive HIL_ACTUATOR_CONTROLS message and
+        save the actuator values
+
+        Returns True if the message was received
+        """
+        t_start = time.time()
+        msg = None
+        while ( ((time.time() - t_start) < FlightAxis.TIMEOUT_S) or msg):
+            #msg = self.connection.recv_match(type='HIL_ACTUATOR_CONTROLS',blocking=False)
+            msg = self.connection.recv_match(blocking=False)
+            # type = 'HITL_RC_INPUTS_RAW' to check the RC inputs
+        if msg:
+            print(f"{msg}")
+            for idx in range(1,FlightAxis.RC_CHANNLES):
+                self.rcin[idx] = msg.controls[idx]
+            return True
+        else:
+            return False
+
+    def sendHilSensor(self):
+        """
+        Send HIL_SENSOR message
+        """
+        # TODO: track the time better?
+        self.connection.mav.hil_sensor_send(
+            int(self.m_currentPhysicsTime_SEC*1000000), # [usec] time
+            self.m_accelerationBodyAX_MPS2,#X acceleration
+            self.m_accelerationBodyAY_MPS2,#Y acceleration
+            self.m_accelerationBodyAZ_MPS2,#Z acceleration
+            0,# TODO Angular speed around X axis in body frame
+            0,# TODO Angular speed around Y axis in body frame
+            0,# TODO Angular speed around Z axis in body frame
+            0, # TODO X Magnetic field
+            0, # TODO Y Magnetic field
+            0, # TODO Z Magnetic field
+            10133, # TODO Absolute pressure [hPa]
+            0, # TODO hPa Differential pressure (airspeed)
+            0, # TODO Altitude calculated from pressure
+            21, # TODO [C] Temperature
+            int('1FFF',16) # Fields updated (uint16_t)0x1FFF
+        )
+
+    def sendHilGps(self):
+        """
+        Send HIL_GPS message
+        """
+        self.connection.mav.hil_gps_send(
+            int(self.m_currentPhysicsTime_SEC*1000000), # [usec] time
+            3, # uint8_t 0-1: no fix, 2: 2D fix, 3: 3D fix.
+            0, # int32_t TODO Latitude (WGS84)
+            0, # int32_t TODO Longitude (WGS84)
+            int(self.m_altitudeASL_MTR*1000), # int32_t [mm] Altitude (MSL). Positive for up.
+            0, # TODO uint16_t GPS HDOP horizontal dilution of position (unitless * 100). If unknown, set to: UINT16_MAX
+            0, # TODO uint16_t GPS VDOP vertical dilution of position (unitless * 100). If unknown, set to: UINT16_MAX
+            int(self.m_groundspeed_MPS*100), # uint16_t [cm/s] GPS ground speed. If unknown, set to: UINT16_MAX
+            0, # TODO uint16_t [cm/s] GPS velocity in north direction in earth-fixed NED frame
+            0, # TODO uint16_t [cm/s] GPS velocity in east direction in earth-fixed NED frame
+            0, # TODO uint16_t [cm/s] GPS velocity in down direction in earth-fixed NED frame
+            0, # TODO uint16_t [cdeg] Course over ground (NOT heading, but direction of movement), 0.0..359.99 degrees. If unknown, set to: UINT16_MAX
+            16, # TODO uint8_t  Number of satellites visible. If unknown, set to UINT8_MAX
+        )
+
+    def sendHilStateQuaternion(self):
+        quats = [self.m_orientationQuaternion_X, self.m_orientationQuaternion_Y, self.m_orientationQuaternion_Z, self.m_orientationQuaternion_W]
+        self.connection.mav.hil_state_quaternion_send(
+            int(self.m_currentPhysicsTime_SEC*1000000), # [usec] time
+            quats, # Vehicle attitude expressed as normalized quaternion in w, x, y, z order (with 1 0 0 0 being the null-rotation)
+            math.radians(self.m_rollRate_DEGpSEC), # float [rad/s] Body frame roll / phi angular speed
+            math.radians(self.m_pitchRate_DEGpSEC),# float [rad/s] Body frame pitch / theta angular speed
+            math.radians(self.m_yawRate_DEGpSEC), # float [rad/s] Body frame yaw / psi angular speed
+            0, # TODO int32_t [degE7] Latitude
+            0, # TODO int32_t [degE7] Longitude
+            int(self.m_altitudeASL_MTR*1000), # int32_t [mm] Altitude
+            int(self.m_velocityWorldU_MPS*100), # int16_t [cm/s] Ground X Speed (Latitude)
+            int(self.m_velocityWorldV_MPS*100), # int16_t [cm/s] Ground Y Speed (Longitude)
+            int(self.m_velocityWorldW_MPS*100), # int16_t [cm/s] Ground Z Speed (Altitude)
+            int(self.m_airspeed_MPS*100), # uint16_t [cm/s] Indicated airspeed
+            int(self.m_airspeed_MPS*100), # uint16_t [cm/s] True airspeed
+            int(self.m_accelerationBodyAX_MPS2/9.8*1000), # int16_t [mG] X acceleration
+            int(self.m_accelerationBodyAY_MPS2/9.8*1000), # int16_t [mG] Y acceleration
+            int(self.m_accelerationBodyAZ_MPS2/9.8*1000), # int16_t [mG] Z acceleration
+        )
 
 def test_parse1():
     res = b'<?xml version="1.0" encoding="UTF-8"?>\n<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><SOAP-ENV:Body><ReturnData><m-previousInputsState><m-selectedChannels>-1</m-selectedChannels><m-channelValues-0to1 xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="xsd:double[12]"><item>1</item><item>0</item><item>0.51503002643585205</item><item>1</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item></m-channelValues-0to1></m-previousInputsState><m-aircraftState><m-currentPhysicsTime-SEC>9.4901527954498306</m-currentPhysicsTime-SEC><m-currentPhysicsSpeedMultiplier>1</m-currentPhysicsSpeedMultiplier><m-airspeed-MPS>4.2668099647568329</m-airspeed-MPS><m-altitudeASL-MTR>0.23033138335698844</m-altitudeASL-MTR><m-altitudeAGL-MTR>0.23033138335698844</m-altitudeAGL-MTR><m-groundspeed-MPS>4.2655322162874292</m-groundspeed-MPS><m-pitchRate-DEGpSEC>46.914449474279536</m-pitchRate-DEGpSEC><m-rollRate-DEGpSEC>-64.392902600666275</m-rollRate-DEGpSEC><m-yawRate-DEGpSEC>-95.093221536022611</m-yawRate-DEGpSEC><m-azimuth-DEG>156.77792358398437</m-azimuth-DEG><m-inclination-DEG>-13.11492919921875</m-inclination-DEG><m-roll-DEG>6.6998014450073242</m-roll-DEG><m-orientationQuaternion-X>0.079808555543422699</m-orientationQuaternion-X><m-orientationQuaternion-Y>0.099987812340259552</m-orientationQuaternion-Y><m-orientationQuaternion-Z>-0.97012227773666382</m-orientationQuaternion-Z><m-orientationQuaternion-W>-0.20614470541477203</m-orientationQuaternion-W><m-aircraftPositionX-MTR>18.125473022460937</m-aircraftPositionX-MTR><m-aircraftPositionY-MTR>13.188897132873535</m-aircraftPositionY-MTR><m-velocityWorldU-MPS>-4.0696659088134766</m-velocityWorldU-MPS><m-velocityWorldV-MPS>1.2777262926101685</m-velocityWorldV-MPS><m-velocityWorldW-MPS>0.10441353917121887</m-velocityWorldW-MPS><m-velocityBodyU-MPS>3.1754355430603027</m-velocityBodyU-MPS><m-velocityBodyV-MPS>-2.8336892127990723</m-velocityBodyV-MPS><m-velocityBodyW-MPS>-0.30408719182014465</m-velocityBodyW-MPS><m-accelerationWorldAX-MPS2>-4.4059576988220215</m-accelerationWorldAX-MPS2><m-accelerationWorldAY-MPS2>-6.3290410041809082</m-accelerationWorldAY-MPS2><m-accelerationWorldAZ-MPS2>8.5558643341064453</m-accelerationWorldAZ-MPS2><m-accelerationBodyAX-MPS2>1.2007522583007813</m-accelerationBodyAX-MPS2><m-accelerationBodyAY-MPS2>8.1494748592376709</m-accelerationBodyAY-MPS2><m-accelerationBodyAZ-MPS2>-8.7651233673095703</m-accelerationBodyAZ-MPS2><m-windX-MPS>0</m-windX-MPS><m-windY-MPS>0</m-windY-MPS><m-windZ-MPS>0</m-windZ-MPS><m-propRPM>10893.9326171875</m-propRPM><m-heliMainRotorRPM>-1</m-heliMainRotorRPM><m-batteryVoltage-VOLTS>-1</m-batteryVoltage-VOLTS><m-batteryCurrentDraw-AMPS>-1</m-batteryCurrentDraw-AMPS><m-batteryRemainingCapacity-MAH>-1</m-batteryRemainingCapacity-MAH><m-fuelRemaining-OZ>11.978337287902832</m-fuelRemaining-OZ><m-isLocked>false</m-isLocked><m-hasLostComponents>false</m-hasLostComponents><m-anEngineIsRunning>true</m-anEngineIsRunning><m-isTouchingGround>true</m-isTouchingGround><m-flightAxisControllerIsActive>true</m-flightAxisControllerIsActive><m-currentAircraftStatus>CAS-FLYING</m-currentAircraftStatus></m-aircraftState><m-notifications><m-resetButtonHasBeenPressed>false</m-resetButtonHasBeenPressed></m-notifications></ReturnData></SOAP-ENV:Body></SOAP-ENV:Envelope>'
@@ -239,3 +336,23 @@ def test_parse2():
     res = b'<?xml version="1.0" encoding="UTF-8"?>\n<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><SOAP-ENV:Body><ReturnData><m-previousInputsState><m-selectedChannels>-1</m-selectedChannels><m-channelValues-0to1 xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="xsd:double[12]"><item>1</item><item>0</item><item>0.51503002643585205</item><item>1</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item></m-channelValues-0to1></m-previousInputsState><m-aircraftState><m-currentPhysicsTime-SEC>9.5060089953476563</m-currentPhysicsTime-SEC><m-currentPhysicsSpeedMultiplier>1</m-currentPhysicsSpeedMultiplier><m-airspeed-MPS>3.973699447829139</m-airspeed-MPS><m-altitudeASL-MTR>0.23263369561650649</m-altitudeASL-MTR><m-altitudeAGL-MTR>0.23263369561650649</m-altitudeAGL-MTR><m-groundspeed-MPS>3.9671952662134293</m-groundspeed-MPS><m-pitchRate-DEGpSEC>65.486709524862817</m-pitchRate-DEGpSEC><m-rollRate-DEGpSEC>-113.29177463687665</m-rollRate-DEGpSEC><m-yawRate-DEGpSEC>-115.36654693618766</m-yawRate-DEGpSEC><m-azimuth-DEG>154.92184448242187</m-azimuth-DEG><m-inclination-DEG>-12.265393257141113</m-inclination-DEG><m-roll-DEG>4.7752151489257812</m-roll-DEG><m-orientationQuaternion-X>0.063606671988964081</m-orientationQuaternion-X><m-orientationQuaternion-Y>0.095200046896934509</m-orientationQuaternion-Y><m-orientationQuaternion-Z>-0.96875286102294922</m-orientationQuaternion-Z><m-orientationQuaternion-W>-0.22001981735229492</m-orientationQuaternion-W><m-aircraftPositionX-MTR>18.143898010253906</m-aircraftPositionX-MTR><m-aircraftPositionY-MTR>13.126790046691895</m-aircraftPositionY-MTR><m-velocityWorldU-MPS>-3.8283603191375732</m-velocityWorldU-MPS><m-velocityWorldV-MPS>1.0403343439102173</m-velocityWorldV-MPS><m-velocityWorldW-MPS>-0.22726421058177948</m-velocityWorldW-MPS><m-velocityBodyU-MPS>2.9091477394104004</m-velocityBodyU-MPS><m-velocityBodyV-MPS>-2.6280345916748047</m-velocityBodyV-MPS><m-velocityBodyW-MPS>-0.64850509166717529</m-velocityBodyW-MPS><m-accelerationWorldAX-MPS2>-4.3766188621520996</m-accelerationWorldAX-MPS2><m-accelerationWorldAY-MPS2>-6.6690726280212402</m-accelerationWorldAY-MPS2><m-accelerationWorldAZ-MPS2>9.2979526519775391</m-accelerationWorldAZ-MPS2><m-accelerationBodyAX-MPS2>-0.53152298927307129</m-accelerationBodyAX-MPS2><m-accelerationBodyAY-MPS2>10.025743305683136</m-accelerationBodyAY-MPS2><m-accelerationBodyAZ-MPS2>-8.8302364349365234</m-accelerationBodyAZ-MPS2><m-windX-MPS>0</m-windX-MPS><m-windY-MPS>0</m-windY-MPS><m-windZ-MPS>0</m-windZ-MPS><m-propRPM>10886.970703125</m-propRPM><m-heliMainRotorRPM>-1</m-heliMainRotorRPM><m-batteryVoltage-VOLTS>-1</m-batteryVoltage-VOLTS><m-batteryCurrentDraw-AMPS>-1</m-batteryCurrentDraw-AMPS><m-batteryRemainingCapacity-MAH>-1</m-batteryRemainingCapacity-MAH><m-fuelRemaining-OZ>11.978252410888672</m-fuelRemaining-OZ><m-isLocked>false</m-isLocked><m-hasLostComponents>false</m-hasLostComponents><m-anEngineIsRunning>true</m-anEngineIsRunning><m-isTouchingGround>true</m-isTouchingGround><m-flightAxisControllerIsActive>true</m-flightAxisControllerIsActive><m-currentAircraftStatus>CAS-FLYING</m-currentAircraftStatus></m-aircraftState><m-notifications><m-resetButtonHasBeenPressed>false</m-resetButtonHasBeenPressed></m-notifications></ReturnData></SOAP-ENV:Body></SOAP-ENV:Envelope>'
     fa = FlightAxis()
     fa.parseResponse(res)
+
+#def test_sitl():
+res = b'<?xml version="1.0" encoding="UTF-8"?>\n<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><SOAP-ENV:Body><ReturnData><m-previousInputsState><m-selectedChannels>-1</m-selectedChannels><m-channelValues-0to1 xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="xsd:double[12]"><item>1</item><item>0</item><item>0.51503002643585205</item><item>1</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item></m-channelValues-0to1></m-previousInputsState><m-aircraftState><m-currentPhysicsTime-SEC>9.5060089953476563</m-currentPhysicsTime-SEC><m-currentPhysicsSpeedMultiplier>1</m-currentPhysicsSpeedMultiplier><m-airspeed-MPS>3.973699447829139</m-airspeed-MPS><m-altitudeASL-MTR>0.23263369561650649</m-altitudeASL-MTR><m-altitudeAGL-MTR>0.23263369561650649</m-altitudeAGL-MTR><m-groundspeed-MPS>3.9671952662134293</m-groundspeed-MPS><m-pitchRate-DEGpSEC>65.486709524862817</m-pitchRate-DEGpSEC><m-rollRate-DEGpSEC>-113.29177463687665</m-rollRate-DEGpSEC><m-yawRate-DEGpSEC>-115.36654693618766</m-yawRate-DEGpSEC><m-azimuth-DEG>154.92184448242187</m-azimuth-DEG><m-inclination-DEG>-12.265393257141113</m-inclination-DEG><m-roll-DEG>4.7752151489257812</m-roll-DEG><m-orientationQuaternion-X>0.063606671988964081</m-orientationQuaternion-X><m-orientationQuaternion-Y>0.095200046896934509</m-orientationQuaternion-Y><m-orientationQuaternion-Z>-0.96875286102294922</m-orientationQuaternion-Z><m-orientationQuaternion-W>-0.22001981735229492</m-orientationQuaternion-W><m-aircraftPositionX-MTR>18.143898010253906</m-aircraftPositionX-MTR><m-aircraftPositionY-MTR>13.126790046691895</m-aircraftPositionY-MTR><m-velocityWorldU-MPS>-3.8283603191375732</m-velocityWorldU-MPS><m-velocityWorldV-MPS>1.0403343439102173</m-velocityWorldV-MPS><m-velocityWorldW-MPS>-0.22726421058177948</m-velocityWorldW-MPS><m-velocityBodyU-MPS>2.9091477394104004</m-velocityBodyU-MPS><m-velocityBodyV-MPS>-2.6280345916748047</m-velocityBodyV-MPS><m-velocityBodyW-MPS>-0.64850509166717529</m-velocityBodyW-MPS><m-accelerationWorldAX-MPS2>-4.3766188621520996</m-accelerationWorldAX-MPS2><m-accelerationWorldAY-MPS2>-6.6690726280212402</m-accelerationWorldAY-MPS2><m-accelerationWorldAZ-MPS2>9.2979526519775391</m-accelerationWorldAZ-MPS2><m-accelerationBodyAX-MPS2>-0.53152298927307129</m-accelerationBodyAX-MPS2><m-accelerationBodyAY-MPS2>10.025743305683136</m-accelerationBodyAY-MPS2><m-accelerationBodyAZ-MPS2>-8.8302364349365234</m-accelerationBodyAZ-MPS2><m-windX-MPS>0</m-windX-MPS><m-windY-MPS>0</m-windY-MPS><m-windZ-MPS>0</m-windZ-MPS><m-propRPM>10886.970703125</m-propRPM><m-heliMainRotorRPM>-1</m-heliMainRotorRPM><m-batteryVoltage-VOLTS>-1</m-batteryVoltage-VOLTS><m-batteryCurrentDraw-AMPS>-1</m-batteryCurrentDraw-AMPS><m-batteryRemainingCapacity-MAH>-1</m-batteryRemainingCapacity-MAH><m-fuelRemaining-OZ>11.978252410888672</m-fuelRemaining-OZ><m-isLocked>false</m-isLocked><m-hasLostComponents>false</m-hasLostComponents><m-anEngineIsRunning>true</m-anEngineIsRunning><m-isTouchingGround>true</m-isTouchingGround><m-flightAxisControllerIsActive>true</m-flightAxisControllerIsActive><m-currentAircraftStatus>CAS-FLYING</m-currentAircraftStatus></m-aircraftState><m-notifications><m-resetButtonHasBeenPressed>false</m-resetButtonHasBeenPressed></m-notifications></ReturnData></SOAP-ENV:Body></SOAP-ENV:Envelope>'
+fa = FlightAxis()
+fa.parseResponse(res)
+
+msg = fa.connection.recv_match(blocking=True)
+if msg:
+    print(msg)
+msg = fa.connection.recv_match(blocking=True)
+if msg:
+    print(msg)
+
+while True:
+    fa.sendHilSensor()
+    fa.sendHilGps()
+    fa.sendHilStateQuaternion()
+    fa.getHilActuatorControls()
+    
+        
