@@ -1,9 +1,13 @@
-import requests
 import time
 import math
-from bs4 import BeautifulSoup
 
+import requests
+import navpy
+from bs4 import BeautifulSoup
 from pymavlink import mavutil
+from magnetic_field_calculator import MagneticFieldCalculator
+import numpy as np
+import quaternionic
 
 class FlightAxis:
     """
@@ -32,6 +36,12 @@ class FlightAxis:
     RC_CHANNLES = 12
     PX4_DEVICE = 'tcpin:localhost:4560'
     TIMEOUT_S = 0.05
+
+
+    LAT_0 = 45.25608036722125 # [deg]
+    LON_0 = -122.84116451943059 # [deg]
+    ALT_0 = 36 # [m]
+    NANOTESLA_TO_GAUSS = 0.01
 
     def getKeytable(self) -> dict:
         keytable = {
@@ -137,6 +147,19 @@ class FlightAxis:
 
         self.connection = mavutil.mavlink_connection(FlightAxis.PX4_DEVICE)
 
+        self.mag_calc = MagneticFieldCalculator()
+
+        # Initialize mag
+        result = self.mag_calc.calculate(latitude=FlightAxis.LAT_0,longitude=FlightAxis.LON_0)
+        field_value = result['field-value']
+        declination = field_value['declination']
+        self.mag_declination_deg = declination['value']
+        inclination = field_value['inclination']
+        self.mag_inclination_deg = inclination['value']
+        total_intensity = field_value['total-intensity']
+        self.mag_intensity_gauss = total_intensity['value']*FlightAxis.NANOTESLA_TO_GAUSS
+
+
     def enableRC(self, doPrint=False) -> bool:
         """
         Set Spektrum as the RC input
@@ -241,6 +264,45 @@ class FlightAxis:
                 tag_val = tag_val.capitalize()
             cmd = f"{v} = {tag_val}"
             exec(cmd)
+
+        # Update attitude
+        self.quats = [self.m_orientationQuaternion_X,
+                      self.m_orientationQuaternion_Y,
+                      self.m_orientationQuaternion_Z,
+                      self.m_orientationQuaternion_W]
+
+        # Update position
+        ned = [self.m_aircraftPositionX_MTR,
+              self.m_aircraftPositionY_MTR,
+              self.m_altitudeAGL_MTR]
+        self.lat,self.lon, _ = navpy.ned2lla(ned, FlightAxis.LAT_0, FlightAxis.LON_0, FlightAxis.ALT_0,
+                                    latlon_unit='deg', alt_unit='m', model='wgs84')
+
+        # Update mag
+        if ((FlightAxis.LAT_0 - self.lat) > FlightAxis.MAG_RECALC_THRESHOLD_DEG)
+            or ((FlightAxis.LON_0 - self.lon) > FlightAxis.MAG_RECALC_THRESHOLD_DEG):
+            result = self.mag_calc.calculate(latitude=self.lat,longitude=self.lon)
+            field_value = result['field-value']
+            declination = field_value['declination']
+            self.mag_declination_deg = declination['value']
+            self.mag_declination_rad = math.radians(self.mag_declination_deg)
+            inclination = field_value['inclination']
+            self.mag_inclination_deg = inclination['value']
+            self.mag_inclination_rad = math.radians(self.mag_inclination_deg)
+            total_intensity = field_value['total-intensity']
+            self.mag_intensity_gauss = total_intensity['value']*FlightAxis.NANOTESLA_TO_GAUSS
+        # Magnetic filed components are calculated by http://geomag.nrcan.gc.ca/mag_fld/comp-en.php
+        # float H = strength_ga * cosf(inclination_rad);
+        mag_h = self.mag_intensity_gauss * math.cos(mag_inclination_rad)
+        # Z = H * tanf(inclination_rad);
+        mag_z = mag_h * math.tan(mag_inclination_rad)
+        # X = H * cosf(declination_rad);
+        mag_x = mag_h * math.cos(self.mag_declination_rad)
+        # Y = H * sinf(declination_rad);
+        mag_y = mag_h * math.sin(self.mag_declination_rad)
+
+
+
     
     def getHilActuatorControls(self) -> bool:
         """
@@ -248,6 +310,8 @@ class FlightAxis:
         save the actuator values
 
         Returns True if the message was received
+
+        TODO: scale the controls properly
         """
         t_start = time.time()
         msg = None
@@ -267,18 +331,18 @@ class FlightAxis:
         """
         Send HIL_SENSOR message
         """
-        # TODO: track the time better?
         self.connection.mav.hil_sensor_send(
-            int(self.m_currentPhysicsTime_SEC*1000000), # [usec] time
-            self.m_accelerationBodyAX_MPS2,#X acceleration
-            self.m_accelerationBodyAY_MPS2,#Y acceleration
-            self.m_accelerationBodyAZ_MPS2,#Z acceleration
-            0,# TODO Angular speed around X axis in body frame
-            0,# TODO Angular speed around Y axis in body frame
-            0,# TODO Angular speed around Z axis in body frame
-            0, # TODO X Magnetic field
-            0, # TODO Y Magnetic field
-            0, # TODO Z Magnetic field
+            int(self.m_currentPhysicsTime_SEC * 1e6), # [usec] time
+            self.m_accelerationBodyAX_MPS2,# float [m/s/s] X acceleration
+            self.m_accelerationBodyAY_MPS2,# float [m/s/s] Y acceleration
+            self.m_accelerationBodyAZ_MPS2,# float [m/s/s] Z acceleration
+            # TODO: for now assume these are the same
+            math.radians(self.m_rollRate_DEGpSEC),# float [rad/s] Angular speed around X axis in body frame
+            math.radians(self.m_pitchRate_DEGpSEC),# float [rad/s] Angular speed around Y axis in body frame
+            math.radians(self.m_yawRate_DEGpSEC),# float [rad/s] Angular speed around Z axis in body frame
+            0, # float [gauss] X Magnetic field
+            0, # float [gauss] Y Magnetic field
+            0, # float [gauss] Z Magnetic field
             10133, # TODO Absolute pressure [hPa]
             0, # TODO hPa Differential pressure (airspeed)
             0, # TODO Altitude calculated from pressure
@@ -291,32 +355,39 @@ class FlightAxis:
         Send HIL_GPS message
         """
         self.connection.mav.hil_gps_send(
-            int(self.m_currentPhysicsTime_SEC*1000000), # [usec] time
+            int(self.m_currentPhysicsTime_SEC * 1e6), # [usec] time
             3, # uint8_t 0-1: no fix, 2: 2D fix, 3: 3D fix.
-            0, # int32_t TODO Latitude (WGS84)
-            0, # int32_t TODO Longitude (WGS84)
+            int(self.lat * 1e7), # int32_t [degE7] Latitude (WGS84)
+            int(self.lon * 1e7), # int32_t [degE7] Longitude (WGS84)
             int(self.m_altitudeASL_MTR*1000), # int32_t [mm] Altitude (MSL). Positive for up.
-            0, # TODO uint16_t GPS HDOP horizontal dilution of position (unitless * 100). If unknown, set to: UINT16_MAX
-            0, # TODO uint16_t GPS VDOP vertical dilution of position (unitless * 100). If unknown, set to: UINT16_MAX
+            100, # uint16_t GPS HDOP horizontal dilution of position (unitless * 100). If unknown, set to: UINT16_MAX
+            100, # uint16_t GPS VDOP vertical dilution of position (unitless * 100). If unknown, set to: UINT16_MAX
             int(self.m_groundspeed_MPS*100), # uint16_t [cm/s] GPS ground speed. If unknown, set to: UINT16_MAX
-            0, # TODO uint16_t [cm/s] GPS velocity in north direction in earth-fixed NED frame
-            0, # TODO uint16_t [cm/s] GPS velocity in east direction in earth-fixed NED frame
-            0, # TODO uint16_t [cm/s] GPS velocity in down direction in earth-fixed NED frame
-            0, # TODO uint16_t [cdeg] Course over ground (NOT heading, but direction of movement), 0.0..359.99 degrees. If unknown, set to: UINT16_MAX
-            16, # TODO uint8_t  Number of satellites visible. If unknown, set to UINT8_MAX
+            # TODO: UVW might not be aligned with NED...
+            int(self.m_velocityWorldU_MPS*100), # uint16_t [cm/s] GPS velocity in north direction in earth-fixed NED frame
+            int(self.m_velocityWorldV_MPS*100), # uint16_t [cm/s] GPS velocity in east direction in earth-fixed NED frame
+            int(self.m_velocityWorldW_MPS*100), # uint16_t [cm/s] GPS velocity in down direction in earth-fixed NED frame
+            # TODO: should be sqrt(v_n^2 + v_e^2)
+            int(self.m_azimuth_DEG*100), # uint16_t [cdeg] Course over ground (NOT heading, but direction of movement), 0.0..359.99 degrees. If unknown, set to: UINT16_MAX
+            10, # uint8_t  Number of satellites visible. If unknown, set to UINT8_MAX
         )
 
     def sendHilStateQuaternion(self):
-        quats = [self.m_orientationQuaternion_X, self.m_orientationQuaternion_Y, self.m_orientationQuaternion_Z, self.m_orientationQuaternion_W]
+        """
+        Send the true position/attitude for logging
+        Note that right now, we don't assume any noise, so the estimated values should track this pretty closely
+        """
         self.connection.mav.hil_state_quaternion_send(
-            int(self.m_currentPhysicsTime_SEC*1000000), # [usec] time
-            quats, # Vehicle attitude expressed as normalized quaternion in w, x, y, z order (with 1 0 0 0 being the null-rotation)
+            int(self.m_currentPhysicsTime_SEC * 1e6), # [usec] time
+            self.quats, # Vehicle attitude expressed as normalized quaternion in w, x, y, z order (with 1 0 0 0 being the null-rotation)
             math.radians(self.m_rollRate_DEGpSEC), # float [rad/s] Body frame roll / phi angular speed
             math.radians(self.m_pitchRate_DEGpSEC),# float [rad/s] Body frame pitch / theta angular speed
             math.radians(self.m_yawRate_DEGpSEC), # float [rad/s] Body frame yaw / psi angular speed
-            0, # TODO int32_t [degE7] Latitude
-            0, # TODO int32_t [degE7] Longitude
+            int(self.lat * 1e7), # int32_t [degE7] Latitude
+            int(self.lon * 1e7), # int32_t [degE7] Longitude
+            # AGL or ASL?
             int(self.m_altitudeASL_MTR*1000), # int32_t [mm] Altitude
+            # TODO: UVW might not be aligned with NED...
             int(self.m_velocityWorldU_MPS*100), # int16_t [cm/s] Ground X Speed (Latitude)
             int(self.m_velocityWorldV_MPS*100), # int16_t [cm/s] Ground Y Speed (Longitude)
             int(self.m_velocityWorldW_MPS*100), # int16_t [cm/s] Ground Z Speed (Altitude)
@@ -342,17 +413,17 @@ res = b'<?xml version="1.0" encoding="UTF-8"?>\n<SOAP-ENV:Envelope xmlns:SOAP-EN
 fa = FlightAxis()
 fa.parseResponse(res)
 
-msg = fa.connection.recv_match(blocking=True)
-if msg:
-    print(msg)
-msg = fa.connection.recv_match(blocking=True)
-if msg:
-    print(msg)
+# msg = fa.connection.recv_match(blocking=True)
+# if msg:
+#     print(msg)
+# msg = fa.connection.recv_match(blocking=True)
+# if msg:
+#     print(msg)
 
-while True:
-    fa.sendHilSensor()
-    fa.sendHilGps()
-    fa.sendHilStateQuaternion()
-    fa.getHilActuatorControls()
+# while True:
+#     fa.sendHilSensor()
+#     fa.sendHilGps()
+#     fa.sendHilStateQuaternion()
+#     fa.getHilActuatorControls()
     
         
