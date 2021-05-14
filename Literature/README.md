@@ -1,10 +1,14 @@
 # Literature review
 
-A collection of various papers, and other relevant documents.
+A collection of books, papers, and other relevant documents.
 
-## Research papers
+## Books
 
+### [Aircraft Control and Simulation: Dynamics, Controls Design, and Autonomous Systems: Dynamics, Controls Design, and Autonomous Systems](https://onlinelibrary.wiley.com/doi/book/10.1002/9781119174882)
+**Used as a reference book for the project** 
 
+### [Aircraft and Rotorcraft System Identification](https://arc.aiaa.org/doi/book/10.2514/4.868207)
+More in-depth description of SystemID for aircrafts. See at least Section 5.3.
 
 ## Parameter Estimation
 
