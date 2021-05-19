@@ -175,7 +175,6 @@ class FlightAxis:
         now = datetime.now()
         self.filename = now.strftime("./%d_%m_%Y__%H_%M_%S.csv")
         print(f"Saving log to {self.filename}")
-        self.row = []
         self.rows = []
         with open(self.filename, mode='w') as f:
             writer = csv.writer(f, delimiter=',')
