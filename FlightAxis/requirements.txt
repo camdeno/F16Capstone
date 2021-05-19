@@ -1,0 +1,7 @@
+requests
+navpy
+bs4
+pymavlink
+magnetic_field_calculator
+numpy
+quaternionic
