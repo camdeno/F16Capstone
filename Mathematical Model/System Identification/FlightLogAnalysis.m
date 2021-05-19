@@ -1,5 +1,7 @@
 % Flight Log Analysis
 % Cam Osborn
+% Loads flight log, maps the signals, reads rc controller data, extracts
+% data as a timetable 
 
 % Input Flight Log
 filename = 'log_25_2021-5-19-10-32-00.ulg';
