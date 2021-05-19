@@ -243,7 +243,7 @@ class FlightAxis:
             writer = csv.writer(f, delimiter=',')
             writer.writerows(self.rows)
 
-    def scaleJoystickValue(value, invert=False) -> float:
+    def scaleJoystickValue(self, value, invert=False) -> float:
         # Condition channel
         #     # -0.66..0.66 to 0-1
         # Interval scaling from https://stats.stackexchange.com/a/281164
