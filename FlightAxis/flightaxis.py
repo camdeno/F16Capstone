@@ -440,9 +440,7 @@ class FlightAxis:
             math.radians(self.m_rollRate_DEGpSEC),# float [rad/s] Angular speed around X axis in body frame
             math.radians(self.m_pitchRate_DEGpSEC),# float [rad/s] Angular speed around Y axis in body frame
             math.radians(self.m_yawRate_DEGpSEC),# float [rad/s] Angular speed around Z axis in body frame
-            self.mag1.T.tolist()[0][0], # float [gauss] X Magnetic field
-            self.mag1.T.tolist()[0][1], # float [gauss] Y Magnetic field
-            self.mag1.T.tolist()[0][2], # float [gauss] Z Magnetic field
+            *self.mag1.T.tolist()[0], # float [gauss] X / Y / Z Magnetic field
             10133, # TODO float [hPa] Absolute pressure
             0, # TODO float [hPa] Differential pressure (airspeed)
             0, # TODO float [NA] Altitude calculated from pressure
