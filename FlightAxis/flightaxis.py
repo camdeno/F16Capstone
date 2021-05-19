@@ -49,8 +49,30 @@ class FlightAxis:
     NANOTESLA_TO_GAUSS = 0.01
     MAG_RECALC_THRESHOLD_DEG = 0.1 # Just a guestimate now
 
+    # Tuples with mapping values
+    # (joystick_channel_idx, RC_IN channel idx, invert?)
+    # Incoming:
+    # rc_in idx -> SOAP order
+    # 0 -> yaw (3)
+    # 1 -> throttle (2)
+    # 2 -> roll (0) # invert
+    # 3 -> pitch (1)
+
+    # Desired:
+    # 0 -> roll
+    # 1 -> pitch
+    # 2 -> yaw
+    # 3 -> throttle
+    YAW_IDX = (0,3,True)
+    THROTTLE_IDX = (1,2,False)
+    ROLL_IDX = (2,0,True)
+    PITCH_IDX = (3,1,False)
+    GEAR_IDX = (4,6,False)
+    MODE_IDX = (5,7,False)
+    CHANNELS = [YAW_IDX, THROTTLE_IDX, ROLL_IDX, PITCH_IDX, GEAR_IDX, MODE_IDX]
+
     def getHeader(self) -> list:
-header = [key for key in self.getKeytable()] + [f"rc_channel_{idx}" for idx in range(FlightAxis.RC_CHANNLES)]
+        header = [key for key in self.getKeytable()] + [f"rc_channel_{idx}" for idx in range(FlightAxis.RC_CHANNLES)]
         return header
 
     def getKeytable(self) -> dict:
@@ -221,60 +243,29 @@ header = [key for key in self.getKeytable()] + [f"rc_channel_{idx}" for idx in r
             writer = csv.writer(f, delimiter=',')
             writer.writerows(self.rows)
 
+    def scaleJoystickValue(value, invert=False) -> float:
+        # Condition channel
+        #     # -0.66..0.66 to 0-1
+        # Interval scaling from https://stats.stackexchange.com/a/281164
+        R_MIN=-0.66
+        R_MAX=0.66
+        T_MIN=0.0
+        T_MAX=1.0
 
+        k = 1.0
+        if invert:
+            k = -1.0
+        scaled_value = (k*value-R_MIN)/(R_MAX-R_MIN)*(T_MAX-T_MIN)+T_MIN
+        if scaled_value < 0.0:
+            scaled_value = 0.0
+        elif scaled_value > 1.0:
+            scaled_value = 1.0
+        return scaled_value
 
     def updateActuators(self,values):
-        """
-        Incoming:
-        rc_in idx -> SOAP order
-        0 -> yaw (3)
-        1 -> throttle (2)
-        2 -> roll (0) # invert
-        3 -> pitch (1)
-
-        Desired:
-        0 -> roll
-        1 -> pitch
-        2 -> yaw
-        3 -> throttle
-        
-        """
-         # Condition channel
-        #     # -0.66..0.66 to 0-1
-        RMIN=-0.66
-        RMAX=0.66
-        TMIN=0.0
-        TMAX=1.0
-        YAW_IDX = (0,3,-1)
-        THROTTLE_IDX = (1,2,1)
-        ROLL_IDX = (2,0,-1)
-        PITCH_IDX = (3,1,1)
-        GEAR_IDX = (4,6,1)
-        MODE_IDX = (5,7,1)
-        # yaw
-        val = (YAW_IDX[2]*values[YAW_IDX[0]]-RMIN)/(RMAX-RMIN)*(TMAX-TMIN)+TMIN
-        self.rcin[YAW_IDX[1]] = val
-        
-        # throttle
-        val = (THROTTLE_IDX[2]*values[THROTTLE_IDX[0]]-RMIN)/(RMAX-RMIN)*(TMAX-TMIN)+TMIN
-        self.rcin[THROTTLE_IDX[1]] = val
-
-        # roll
-        val = (ROLL_IDX[2]*values[ROLL_IDX[0]]-RMIN)/(RMAX-RMIN)*(TMAX-TMIN)+TMIN
-        self.rcin[ROLL_IDX[1]] = val
-
-        # pitch
-        val = (PITCH_IDX[2]*values[PITCH_IDX[0]]-RMIN)/(RMAX-RMIN)*(TMAX-TMIN)+TMIN
-        self.rcin[PITCH_IDX[1]] = val
-
-        # gear
-        val = (GEAR_IDX[2]*values[GEAR_IDX[0]]-RMIN)/(RMAX-RMIN)*(TMAX-TMIN)+TMIN
-        self.rcin[GEAR_IDX[1]] = val
-
-        # switch
-        val = (MODE_IDX[2]*values[MODE_IDX[0]]-RMIN)/(RMAX-RMIN)*(TMAX-TMIN)+TMIN
-        self.rcin[MODE_IDX[1]] = val
-
+        for channel in FlightAxis.CHANNELS:
+            joy_idx, rc_idx, channelInverted = channel
+            self.rcin[rc_idx] = self.scaleJoystickValue(values[joy_idx],invert=channelInverted)
 
     def getStates(self, doPrint=False) -> bool:
         """
@@ -405,7 +396,7 @@ header = [key for key in self.getKeytable()] + [f"rc_channel_{idx}" for idx in r
         """
         msg = self.connection.recv_match(blocking=False)
         #msg = self.connection.recv_match(type='HIL_ACTUATOR_CONTROLS',blocking=True)
-        return True if msg else False 
+        return True if msg else False
 
         # t_start = time.time()
         # msg = None
@@ -426,6 +417,8 @@ header = [key for key in self.getKeytable()] + [f"rc_channel_{idx}" for idx in r
         Send HIL_SENSOR message
         """
         self.connection.mav.hil_sensor_send(
+            # NOTE: Use something like 'pint' https://pint.readthedocs.io/en/stable/
+            # for unit conversion
             int(self.m_currentPhysicsTime_SEC * 1e6), # [usec] time
             self.m_accelerationBodyAX_MPS2,# float [m/s/s] X acceleration
             self.m_accelerationBodyAY_MPS2,# float [m/s/s] Y acceleration
@@ -504,7 +497,7 @@ header = [key for key in self.getKeytable()] + [f"rc_channel_{idx}" for idx in r
                                     latlon_unit='deg', alt_unit='m', model='wgs84')
 
         # Update mag
-        if ((FlightAxis.LAT_0 - self.lat) > FlightAxis.MAG_RECALC_THRESHOLD_DEG)
+        if ((FlightAxis.LAT_0 - self.lat) > FlightAxis.MAG_RECALC_THRESHOLD_DEG) \
             or ((FlightAxis.LON_0 - self.lon) > FlightAxis.MAG_RECALC_THRESHOLD_DEG):
             result = self.mag_calc.calculate(latitude=self.lat,longitude=self.lon)
             field_value = result['field-value']
@@ -518,9 +511,9 @@ header = [key for key in self.getKeytable()] + [f"rc_channel_{idx}" for idx in r
             self.mag_intensity_gauss = total_intensity['value']*FlightAxis.NANOTESLA_TO_GAUSS
         # Magnetic filed components are calculated by http://geomag.nrcan.gc.ca/mag_fld/comp-en.php
         # float H = strength_ga * cosf(inclination_rad);
-        mag_h = self.mag_intensity_gauss * math.cos(mag_inclination_rad)
+        mag_h = self.mag_intensity_gauss * math.cos(self.mag_inclination_rad)
         # Z = H * tanf(inclination_rad);
-        mag_z = mag_h * math.tan(mag_inclination_rad)
+        mag_z = mag_h * math.tan(self.mag_inclination_rad)
         # X = H * cosf(declination_rad);
         mag_x = mag_h * math.cos(self.mag_declination_rad)
         # Y = H * sinf(declination_rad);
@@ -632,6 +625,14 @@ def test_parse2():
     res = b'<?xml version="1.0" encoding="UTF-8"?>\n<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><SOAP-ENV:Body><ReturnData><m-previousInputsState><m-selectedChannels>-1</m-selectedChannels><m-channelValues-0to1 xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="xsd:double[12]"><item>1</item><item>0</item><item>0.51503002643585205</item><item>1</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item></m-channelValues-0to1></m-previousInputsState><m-aircraftState><m-currentPhysicsTime-SEC>9.5060089953476563</m-currentPhysicsTime-SEC><m-currentPhysicsSpeedMultiplier>1</m-currentPhysicsSpeedMultiplier><m-airspeed-MPS>3.973699447829139</m-airspeed-MPS><m-altitudeASL-MTR>0.23263369561650649</m-altitudeASL-MTR><m-altitudeAGL-MTR>0.23263369561650649</m-altitudeAGL-MTR><m-groundspeed-MPS>3.9671952662134293</m-groundspeed-MPS><m-pitchRate-DEGpSEC>65.486709524862817</m-pitchRate-DEGpSEC><m-rollRate-DEGpSEC>-113.29177463687665</m-rollRate-DEGpSEC><m-yawRate-DEGpSEC>-115.36654693618766</m-yawRate-DEGpSEC><m-azimuth-DEG>154.92184448242187</m-azimuth-DEG><m-inclination-DEG>-12.265393257141113</m-inclination-DEG><m-roll-DEG>4.7752151489257812</m-roll-DEG><m-orientationQuaternion-X>0.063606671988964081</m-orientationQuaternion-X><m-orientationQuaternion-Y>0.095200046896934509</m-orientationQuaternion-Y><m-orientationQuaternion-Z>-0.96875286102294922</m-orientationQuaternion-Z><m-orientationQuaternion-W>-0.22001981735229492</m-orientationQuaternion-W><m-aircraftPositionX-MTR>18.143898010253906</m-aircraftPositionX-MTR><m-aircraftPositionY-MTR>13.126790046691895</m-aircraftPositionY-MTR><m-velocityWorldU-MPS>-3.8283603191375732</m-velocityWorldU-MPS><m-velocityWorldV-MPS>1.0403343439102173</m-velocityWorldV-MPS><m-velocityWorldW-MPS>-0.22726421058177948</m-velocityWorldW-MPS><m-velocityBodyU-MPS>2.9091477394104004</m-velocityBodyU-MPS><m-velocityBodyV-MPS>-2.6280345916748047</m-velocityBodyV-MPS><m-velocityBodyW-MPS>-0.64850509166717529</m-velocityBodyW-MPS><m-accelerationWorldAX-MPS2>-4.3766188621520996</m-accelerationWorldAX-MPS2><m-accelerationWorldAY-MPS2>-6.6690726280212402</m-accelerationWorldAY-MPS2><m-accelerationWorldAZ-MPS2>9.2979526519775391</m-accelerationWorldAZ-MPS2><m-accelerationBodyAX-MPS2>-0.53152298927307129</m-accelerationBodyAX-MPS2><m-accelerationBodyAY-MPS2>10.025743305683136</m-accelerationBodyAY-MPS2><m-accelerationBodyAZ-MPS2>-8.8302364349365234</m-accelerationBodyAZ-MPS2><m-windX-MPS>0</m-windX-MPS><m-windY-MPS>0</m-windY-MPS><m-windZ-MPS>0</m-windZ-MPS><m-propRPM>10886.970703125</m-propRPM><m-heliMainRotorRPM>-1</m-heliMainRotorRPM><m-batteryVoltage-VOLTS>-1</m-batteryVoltage-VOLTS><m-batteryCurrentDraw-AMPS>-1</m-batteryCurrentDraw-AMPS><m-batteryRemainingCapacity-MAH>-1</m-batteryRemainingCapacity-MAH><m-fuelRemaining-OZ>11.978252410888672</m-fuelRemaining-OZ><m-isLocked>false</m-isLocked><m-hasLostComponents>false</m-hasLostComponents><m-anEngineIsRunning>true</m-anEngineIsRunning><m-isTouchingGround>true</m-isTouchingGround><m-flightAxisControllerIsActive>true</m-flightAxisControllerIsActive><m-currentAircraftStatus>CAS-FLYING</m-currentAircraftStatus></m-aircraftState><m-notifications><m-resetButtonHasBeenPressed>false</m-resetButtonHasBeenPressed></m-notifications></ReturnData></SOAP-ENV:Body></SOAP-ENV:Envelope>'
     fa = FlightAxis()
     fa.parseResponse(res)
+
+
+# NOTE: try something cleaner, such as using context manager
+# and __enter__ and __exit__ dunder methods:
+# '''
+# with FlightAxisManager() as axis_manager:
+#   do stuff
+# '''
 
 def signal_handler(sig, frame):
     print('You pressed Ctrl+C!')
