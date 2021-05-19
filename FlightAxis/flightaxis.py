@@ -50,12 +50,7 @@ class FlightAxis:
     MAG_RECALC_THRESHOLD_DEG = 0.1 # Just a guestimate now
 
     def getHeader(self) -> list:
-        header = []
-        for key in self.getKeytable().keys():
-            header.append(key)
-        for idx in range(FlightAxis.RC_CHANNLES):
-            s = f"rc_channel_{idx}"
-            header.append(s)
+header = [key for key in self.getKeytable()] + [f"rc_channel_{idx}" for idx in range(FlightAxis.RC_CHANNLES)]
         return header
 
     def getKeytable(self) -> dict:
