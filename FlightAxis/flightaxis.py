@@ -411,13 +411,7 @@ class FlightAxis:
         """
         msg = self.connection.recv_match(blocking=False)
         #msg = self.connection.recv_match(type='HIL_ACTUATOR_CONTROLS',blocking=True)
-        if msg:
-            #print(f"{msg}")
-            #for idx in range(1,FlightAxis.RC_CHANNLES):
-            #    self.rcin[idx] = msg.controls[idx]
-            return True
-        else:
-            return False
+        return True if msg else False 
 
         # t_start = time.time()
         # msg = None
