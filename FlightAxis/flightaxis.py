@@ -14,7 +14,7 @@ from magnetic_field_calculator import MagneticFieldCalculator
 import numpy as np
 import quaternionic
 
-        
+
 class FlightAxis:
     """
     Python version of Ardupilot's FlightAxis implementation, available here:
@@ -217,7 +217,7 @@ class FlightAxis:
         if doPrint:
             print(response.content)
         return response.ok
-        
+
     def disableRC(self, doPrint=False) -> bool:
         """
         Disable Spektrum as the RC input, and use FlightAxis instead
@@ -303,7 +303,7 @@ class FlightAxis:
 
         if doPrint:
             print(response.content)
-        
+
         if response.ok:
             now = time.time()
             dt = now - self.last_frame_time
@@ -323,6 +323,7 @@ class FlightAxis:
         assert(body)
 
         self.row = []
+        # Use keytable for rows
         keytable = self.getKeytable()
         for k,v in keytable.items():
             tag = body.find(k)
@@ -333,7 +334,13 @@ class FlightAxis:
             exec(cmd)
             cmd = f"self.row.append({tag_val})"
             exec(cmd)
-            self.rows.append(self.row)
+
+        # Add actuators
+        for idx in range(FlightAxis.RC_CHANNLES):
+            self.row.append(self.rcin[idx])
+
+        # Actually append the rows
+        self.rows.append(self.row)
 
         # Update attitude
         self.quats_as_list = [self.m_orientationQuaternion_W,
@@ -384,7 +391,7 @@ class FlightAxis:
         self.mag_intensity_gauss = total_intensity['value']*FlightAxis.NANOTESLA_TO_GAUSS
         print(f"Updated mag: mag_declination_deg={self.mag_declination_deg}, mag_inclination_deg={self.mag_inclination_deg}, mag_intensity_gauss={self.mag_intensity_gauss}")
 
-    
+
     def getHilActuatorControls(self) -> bool:
         """
         Attempt to receive HIL_ACTUATOR_CONTROLS message and
@@ -521,7 +528,7 @@ class FlightAxis:
 
 
 
-    
+
     def getHilActuatorControls(self) -> bool:
         """
         Attempt to receive HIL_ACTUATOR_CONTROLS message and
