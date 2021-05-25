@@ -427,13 +427,15 @@ class FlightAxis:
             # NOTE: Use something like 'pint' https://pint.readthedocs.io/en/stable/
             # for unit conversion
             int(self.m_currentPhysicsTime_SEC * 1e6), # [usec] time
+            # TODO: is the body accel the same as IMU accel?
             self.m_accelerationBodyAX_MPS2,# float [m/s/s] X acceleration
             self.m_accelerationBodyAY_MPS2,# float [m/s/s] Y acceleration
             self.m_accelerationBodyAZ_MPS2,# float [m/s/s] Z acceleration
-            # TODO: for now assume these are the same
+            # TODO: for now assume these are the same - but perhaps they are not?
             math.radians(self.m_rollRate_DEGpSEC),# float [rad/s] Angular speed around X axis in body frame
             math.radians(self.m_pitchRate_DEGpSEC),# float [rad/s] Angular speed around Y axis in body frame
             math.radians(self.m_yawRate_DEGpSEC),# float [rad/s] Angular speed around Z axis in body frame
+            # TODO: we are assuming the mag field representation is correct
             *self.mag1.T.tolist()[0], # float [gauss] X / Y / Z Magnetic field
             10133, # TODO float [hPa] Absolute pressure
             0, # TODO float [hPa] Differential pressure (airspeed)
