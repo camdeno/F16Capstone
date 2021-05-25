@@ -490,139 +490,6 @@ class FlightAxis:
             int(self.m_accelerationBodyAZ_MPS2/9.8*1000), # int16_t [mG] Z acceleration
         )
 
-        # Update attitude
-        self.quats = [self.m_orientationQuaternion_X,
-                      self.m_orientationQuaternion_Y,
-                      self.m_orientationQuaternion_Z,
-                      self.m_orientationQuaternion_W]
-
-        # Update position
-        ned = [self.m_aircraftPositionX_MTR,
-              self.m_aircraftPositionY_MTR,
-              self.m_altitudeAGL_MTR]
-        self.lat,self.lon, _ = navpy.ned2lla(ned, FlightAxis.LAT_0, FlightAxis.LON_0, FlightAxis.ALT_0,
-                                    latlon_unit='deg', alt_unit='m', model='wgs84')
-
-        # Update mag
-        if ((FlightAxis.LAT_0 - self.lat) > FlightAxis.MAG_RECALC_THRESHOLD_DEG) \
-            or ((FlightAxis.LON_0 - self.lon) > FlightAxis.MAG_RECALC_THRESHOLD_DEG):
-            result = self.mag_calc.calculate(latitude=self.lat,longitude=self.lon)
-            field_value = result['field-value']
-            declination = field_value['declination']
-            self.mag_declination_deg = declination['value']
-            self.mag_declination_rad = math.radians(self.mag_declination_deg)
-            inclination = field_value['inclination']
-            self.mag_inclination_deg = inclination['value']
-            self.mag_inclination_rad = math.radians(self.mag_inclination_deg)
-            total_intensity = field_value['total-intensity']
-            self.mag_intensity_gauss = total_intensity['value']*FlightAxis.NANOTESLA_TO_GAUSS
-        # Magnetic filed components are calculated by http://geomag.nrcan.gc.ca/mag_fld/comp-en.php
-        # float H = strength_ga * cosf(inclination_rad);
-        mag_h = self.mag_intensity_gauss * math.cos(self.mag_inclination_rad)
-        # Z = H * tanf(inclination_rad);
-        mag_z = mag_h * math.tan(self.mag_inclination_rad)
-        # X = H * cosf(declination_rad);
-        mag_x = mag_h * math.cos(self.mag_declination_rad)
-        # Y = H * sinf(declination_rad);
-        mag_y = mag_h * math.sin(self.mag_declination_rad)
-
-
-
-
-    def getHilActuatorControls(self) -> bool:
-        """
-        Attempt to receive HIL_ACTUATOR_CONTROLS message and
-        save the actuator values
-
-        Returns True if the message was received
-
-        TODO: scale the controls properly
-        """
-        t_start = time.time()
-        msg = None
-        while ( ((time.time() - t_start) < FlightAxis.TIMEOUT_S) or msg):
-            #msg = self.connection.recv_match(type='HIL_ACTUATOR_CONTROLS',blocking=False)
-            msg = self.connection.recv_match(blocking=False)
-            # type = 'HITL_RC_INPUTS_RAW' to check the RC inputs
-        if msg:
-            print(f"{msg}")
-            for idx in range(1,FlightAxis.RC_CHANNLES):
-                self.rcin[idx] = msg.controls[idx]
-            return True
-        else:
-            return False
-
-    def sendHilSensor(self):
-        """
-        Send HIL_SENSOR message
-        """
-        self.connection.mav.hil_sensor_send(
-            int(self.m_currentPhysicsTime_SEC * 1e6), # [usec] time
-            self.m_accelerationBodyAX_MPS2,# float [m/s/s] X acceleration
-            self.m_accelerationBodyAY_MPS2,# float [m/s/s] Y acceleration
-            self.m_accelerationBodyAZ_MPS2,# float [m/s/s] Z acceleration
-            # TODO: for now assume these are the same
-            math.radians(self.m_rollRate_DEGpSEC),# float [rad/s] Angular speed around X axis in body frame
-            math.radians(self.m_pitchRate_DEGpSEC),# float [rad/s] Angular speed around Y axis in body frame
-            math.radians(self.m_yawRate_DEGpSEC),# float [rad/s] Angular speed around Z axis in body frame
-            0, # float [gauss] X Magnetic field
-            0, # float [gauss] Y Magnetic field
-            0, # float [gauss] Z Magnetic field
-            10133, # TODO Absolute pressure [hPa]
-            0, # TODO hPa Differential pressure (airspeed)
-            0, # TODO Altitude calculated from pressure
-            21, # TODO [C] Temperature
-            int('1FFF',16) # Fields updated (uint16_t)0x1FFF
-        )
-
-    def sendHilGps(self):
-        """
-        Send HIL_GPS message
-        """
-        self.connection.mav.hil_gps_send(
-            int(self.m_currentPhysicsTime_SEC * 1e6), # [usec] time
-            3, # uint8_t 0-1: no fix, 2: 2D fix, 3: 3D fix.
-            int(self.lat * 1e7), # int32_t [degE7] Latitude (WGS84)
-            int(self.lon * 1e7), # int32_t [degE7] Longitude (WGS84)
-            int(self.m_altitudeASL_MTR*1000), # int32_t [mm] Altitude (MSL). Positive for up.
-            100, # uint16_t GPS HDOP horizontal dilution of position (unitless * 100). If unknown, set to: UINT16_MAX
-            100, # uint16_t GPS VDOP vertical dilution of position (unitless * 100). If unknown, set to: UINT16_MAX
-            int(self.m_groundspeed_MPS*100), # uint16_t [cm/s] GPS ground speed. If unknown, set to: UINT16_MAX
-            # TODO: UVW might not be aligned with NED...
-            int(self.m_velocityWorldU_MPS*100), # uint16_t [cm/s] GPS velocity in north direction in earth-fixed NED frame
-            int(self.m_velocityWorldV_MPS*100), # uint16_t [cm/s] GPS velocity in east direction in earth-fixed NED frame
-            int(self.m_velocityWorldW_MPS*100), # uint16_t [cm/s] GPS velocity in down direction in earth-fixed NED frame
-            # TODO: should be sqrt(v_n^2 + v_e^2)
-            int(self.m_azimuth_DEG*100), # uint16_t [cdeg] Course over ground (NOT heading, but direction of movement), 0.0..359.99 degrees. If unknown, set to: UINT16_MAX
-            10, # uint8_t  Number of satellites visible. If unknown, set to UINT8_MAX
-        )
-
-    def sendHilStateQuaternion(self):
-        """
-        Send the true position/attitude for logging
-        Note that right now, we don't assume any noise, so the estimated values should track this pretty closely
-        """
-        self.connection.mav.hil_state_quaternion_send(
-            int(self.m_currentPhysicsTime_SEC * 1e6), # [usec] time
-            self.quats, # Vehicle attitude expressed as normalized quaternion in w, x, y, z order (with 1 0 0 0 being the null-rotation)
-            math.radians(self.m_rollRate_DEGpSEC), # float [rad/s] Body frame roll / phi angular speed
-            math.radians(self.m_pitchRate_DEGpSEC),# float [rad/s] Body frame pitch / theta angular speed
-            math.radians(self.m_yawRate_DEGpSEC), # float [rad/s] Body frame yaw / psi angular speed
-            int(self.lat * 1e7), # int32_t [degE7] Latitude
-            int(self.lon * 1e7), # int32_t [degE7] Longitude
-            # AGL or ASL?
-            int(self.m_altitudeASL_MTR*1000), # int32_t [mm] Altitude
-            # TODO: UVW might not be aligned with NED...
-            int(self.m_velocityWorldU_MPS*100), # int16_t [cm/s] Ground X Speed (Latitude)
-            int(self.m_velocityWorldV_MPS*100), # int16_t [cm/s] Ground Y Speed (Longitude)
-            int(self.m_velocityWorldW_MPS*100), # int16_t [cm/s] Ground Z Speed (Altitude)
-            int(self.m_airspeed_MPS*100), # uint16_t [cm/s] Indicated airspeed
-            int(self.m_airspeed_MPS*100), # uint16_t [cm/s] True airspeed
-            int(self.m_accelerationBodyAX_MPS2/9.8*1000), # int16_t [mG] X acceleration
-            int(self.m_accelerationBodyAY_MPS2/9.8*1000), # int16_t [mG] Y acceleration
-            int(self.m_accelerationBodyAZ_MPS2/9.8*1000), # int16_t [mG] Z acceleration
-        )
-
 def test_parse1():
     res = b'<?xml version="1.0" encoding="UTF-8"?>\n<SOAP-ENV:Envelope xmlns:SOAP-ENV="http://schemas.xmlsoap.org/soap/envelope/" xmlns:SOAP-ENC="http://schemas.xmlsoap.org/soap/encoding/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema"><SOAP-ENV:Body><ReturnData><m-previousInputsState><m-selectedChannels>-1</m-selectedChannels><m-channelValues-0to1 xsi:type="SOAP-ENC:Array" SOAP-ENC:arrayType="xsd:double[12]"><item>1</item><item>0</item><item>0.51503002643585205</item><item>1</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item><item>0</item></m-channelValues-0to1></m-previousInputsState><m-aircraftState><m-currentPhysicsTime-SEC>9.4901527954498306</m-currentPhysicsTime-SEC><m-currentPhysicsSpeedMultiplier>1</m-currentPhysicsSpeedMultiplier><m-airspeed-MPS>4.2668099647568329</m-airspeed-MPS><m-altitudeASL-MTR>0.23033138335698844</m-altitudeASL-MTR><m-altitudeAGL-MTR>0.23033138335698844</m-altitudeAGL-MTR><m-groundspeed-MPS>4.2655322162874292</m-groundspeed-MPS><m-pitchRate-DEGpSEC>46.914449474279536</m-pitchRate-DEGpSEC><m-rollRate-DEGpSEC>-64.392902600666275</m-rollRate-DEGpSEC><m-yawRate-DEGpSEC>-95.093221536022611</m-yawRate-DEGpSEC><m-azimuth-DEG>156.77792358398437</m-azimuth-DEG><m-inclination-DEG>-13.11492919921875</m-inclination-DEG><m-roll-DEG>6.6998014450073242</m-roll-DEG><m-orientationQuaternion-X>0.079808555543422699</m-orientationQuaternion-X><m-orientationQuaternion-Y>0.099987812340259552</m-orientationQuaternion-Y><m-orientationQuaternion-Z>-0.97012227773666382</m-orientationQuaternion-Z><m-orientationQuaternion-W>-0.20614470541477203</m-orientationQuaternion-W><m-aircraftPositionX-MTR>18.125473022460937</m-aircraftPositionX-MTR><m-aircraftPositionY-MTR>13.188897132873535</m-aircraftPositionY-MTR><m-velocityWorldU-MPS>-4.0696659088134766</m-velocityWorldU-MPS><m-velocityWorldV-MPS>1.2777262926101685</m-velocityWorldV-MPS><m-velocityWorldW-MPS>0.10441353917121887</m-velocityWorldW-MPS><m-velocityBodyU-MPS>3.1754355430603027</m-velocityBodyU-MPS><m-velocityBodyV-MPS>-2.8336892127990723</m-velocityBodyV-MPS><m-velocityBodyW-MPS>-0.30408719182014465</m-velocityBodyW-MPS><m-accelerationWorldAX-MPS2>-4.4059576988220215</m-accelerationWorldAX-MPS2><m-accelerationWorldAY-MPS2>-6.3290410041809082</m-accelerationWorldAY-MPS2><m-accelerationWorldAZ-MPS2>8.5558643341064453</m-accelerationWorldAZ-MPS2><m-accelerationBodyAX-MPS2>1.2007522583007813</m-accelerationBodyAX-MPS2><m-accelerationBodyAY-MPS2>8.1494748592376709</m-accelerationBodyAY-MPS2><m-accelerationBodyAZ-MPS2>-8.7651233673095703</m-accelerationBodyAZ-MPS2><m-windX-MPS>0</m-windX-MPS><m-windY-MPS>0</m-windY-MPS><m-windZ-MPS>0</m-windZ-MPS><m-propRPM>10893.9326171875</m-propRPM><m-heliMainRotorRPM>-1</m-heliMainRotorRPM><m-batteryVoltage-VOLTS>-1</m-batteryVoltage-VOLTS><m-batteryCurrentDraw-AMPS>-1</m-batteryCurrentDraw-AMPS><m-batteryRemainingCapacity-MAH>-1</m-batteryRemainingCapacity-MAH><m-fuelRemaining-OZ>11.978337287902832</m-fuelRemaining-OZ><m-isLocked>false</m-isLocked><m-hasLostComponents>false</m-hasLostComponents><m-anEngineIsRunning>true</m-anEngineIsRunning><m-isTouchingGround>true</m-isTouchingGround><m-flightAxisControllerIsActive>true</m-flightAxisControllerIsActive><m-currentAircraftStatus>CAS-FLYING</m-currentAircraftStatus></m-aircraftState><m-notifications><m-resetButtonHasBeenPressed>false</m-resetButtonHasBeenPressed></m-notifications></ReturnData></SOAP-ENV:Body></SOAP-ENV:Envelope>'
     fa = FlightAxis()
@@ -655,7 +522,7 @@ print('Press Ctrl+C')
 pygame.init()
 pygame.joystick.init()
 
-joystick = pygame.joystick.Joystick(0)
+joystick = pygame.joystick.Joystick(1)
 joystick.init()
 print(f"{joystick.get_name()}")
 
@@ -681,12 +548,8 @@ while not done:
             rc_values[event.axis] = event.value
     fa.updateActuators(rc_values)
     fa.getStates()
-    #fa.saveStates()
-#     fa.updateActuators(rc.getValues())
-#     fa.getStates()
-#     #fa.sendHilSensor()
-#     #fa.sendHilGps()
-#     #fa.sendHilStateQuaternion()
-#     #fa.getHilActuatorControls()
-#     #time.sleep(0.005)
+    fa.sendHilSensor()
+    fa.sendHilGps()
+    fa.sendHilStateQuaternion()
+    fa.getHilActuatorControls()
 print("DONE")
