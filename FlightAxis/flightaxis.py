@@ -218,6 +218,21 @@ class FlightAxis:
             print(response.content)
         return response.ok
 
+    def resetSim(self, doPrint=False) -> bool:
+        """
+        Reset Real Flight simulator,
+        per post here: https://www.knifeedge.com/forums/index.php?threads/realflight-reset-soap-envelope.52333/
+        NOTE: untested
+        """
+        headers = {'content-type': "text/xml;charset='UTF-8'",
+                   'soapaction': 'ResetAircraft'}
+        body = "<?xml version='1.0' encoding='UTF-8'?>\
+        <soap:Envelope xmlns:soap='http://schemas.xmlsoap.org/soap/envelope/' xmlns:xsd='http://www.w3.org/2001/XMLSchema' xmlns:xsi='http://www.w3.org/2001/XMLSchema-instance'>\
+        <soap:Body>\
+        <ResetAircraft><a>1</a><b>2</b></ResetAircraft>\
+        </soap:Body>\
+        </soap:Envelope>"
+
     def disableRC(self, doPrint=False) -> bool:
         """
         Disable Spektrum as the RC input, and use FlightAxis instead
