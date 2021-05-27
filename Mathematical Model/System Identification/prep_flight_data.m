@@ -240,8 +240,12 @@ vals([deleteSize+1:maxSize],:) = [];
 
 % To do
 % Get user input to save file
-
-save('20_05_2021__18_44_27.mat', 'vals'); 
+prompt = {'What do you want to save the data as?'};
+dlgtitle = 'Rename Data File';
+definput = {'newData'};
+dims = [1 40];
+dataName = inputdlg(prompt,dlgtitle,dims,definput);
+save(dataName{1,1}, 'vals'); 
 
 % To do 
 % Handle Ulog File 
