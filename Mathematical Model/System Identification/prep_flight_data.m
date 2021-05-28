@@ -19,7 +19,7 @@ formats(1,1).limits = [1 1];
 
 formats(2,1).type   = 'list';
 formats(2,1).style  = 'popupmenu';
-formats(2,1).items  = {'CSV', 'MAT', 'ULG'};
+formats(2,1).items  = {'CSV', 'MAT'};
 defaultanswer = {'./25_05_2021__23_20_29.mat', 2};
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 
@@ -105,8 +105,27 @@ rc_channel_4 = 48;
 rc_channel_5 = 49;
 rc_channel_6 = 50;
 rc_channel_7 = 51;
-% Others
 
+% Others
+m_altitudeASL_MTR = 2;
+m_altitudeAGL_MTR = 3;
+m_groundspeed_MPS = 4;
+m_azimuth_DEG = 8;
+m_aircraftPositionX_MTR = 11;
+m_aircraftPositionY_MTR = 12;
+m_velocityWorldU_MPS = 13;
+m_velocityWorldV_MPS = 14;
+m_velocityWorldW_MPS = 15;
+m_velocityBodyU_MPS = 16;
+m_velocityBodyV_MPS = 17;
+m_velocityBodyW_MPS = 18;
+m_accelerationWorldAX_MPS2 = 19;
+m_accelerationWorldAY_MPS2 = 20;
+m_accelerationWorldAZ_MPS2 = 21;
+m_accelerationBodyAX_MPS2 = 22;
+m_accelerationBodyAY_MPS2 = 23;
+m_accelerationBodyAZ_MPS2 = 24; 
+m_windX_MPS = 25;
 
 % Get variables
 yawRate_full = table2array(vals(:,m_yawRate_DEGpSEC));
@@ -182,9 +201,6 @@ switch answer
          disp([answer ' coming right up.'])
         dispPlot = 0;
 end
-
-
-
 
 %% Handle data and user input
 
