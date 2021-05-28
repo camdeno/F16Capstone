@@ -52,6 +52,29 @@ for idx = 1:size(header,2);
     expr = sprintf("%s = %d",header(idx),idx);
     eval(expr);
 end
+%% Prepare Data to be moved from table to array 
+
+Data_types = {'True', 'False'};
+Data_value = [      1,        0];
+[wasfound, idx] = ismember(vals.m_isLocked, Data_types);
+f_values = nan(length(idx), 1);
+f_values(wasfound) = Data_value(idx(wasfound));
+vals.m_isLocked = f_values;
+
+[wasfound, idx] = ismember(vals.m_hasLostComponents, Data_types);
+f_values = nan(length(idx), 1);
+f_values(wasfound) = Data_value(idx(wasfound));
+vals.m_hasLostComponents = f_values;
+
+[wasfound, idx] = ismember(vals.m_anEngineIsRunning, Data_types);
+f_values = nan(length(idx), 1);
+f_values(wasfound) = Data_value(idx(wasfound));
+vals.m_anEngineIsRunning = f_values;
+
+[wasfound, idx] = ismember(vals.m_isTouchingGround, Data_types);
+f_values = nan(length(idx), 1);
+f_values(wasfound) = Data_value(idx(wasfound));
+vals.m_isTouchingGround = f_values;
 % vals.Properties.VariableDescriptions has the header
 %% Longitudial model 
 % Stevens:  x=[alpha, q, v_t, phi] u = [delta_e, delta_t]
@@ -219,6 +242,7 @@ for u=1:length(time(:,1))
 end
 
 
+
 %% Removing non-selected time
 
 takeOffTime = p;
@@ -238,14 +262,16 @@ maxSize = maxSize(1);
 deleteSize = totalTime;
 vals([deleteSize+1:maxSize],:) = [];
 
-% To do
-% Get user input to save file
-prompt = {'What do you want to save the data as?'};
+%move to an array
+vals = table2array(vals); 
+
+prompt = {'What do you want to rename the data to?'};
 dlgtitle = 'Rename Data File';
-definput = {'newData'};
+definput = {'clippedData'};
 dims = [1 40];
 dataName = inputdlg(prompt,dlgtitle,dims,definput);
 save(dataName{1,1}, 'vals'); 
+
 
 % To do 
 % Handle Ulog File 
