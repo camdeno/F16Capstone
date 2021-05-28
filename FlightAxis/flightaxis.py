@@ -38,7 +38,7 @@ class FlightAxis:
     3. send HIL_SENSOR and HIL_GPS to PX4
 
     """
-    REALFLIGHT_URL = "http://127.0.0.1:18083"
+    REALFLIGHT_URL = "http://192.168.55.54:18083"
     RC_CHANNLES = 12
     PX4_DEVICE = 'tcpin:localhost:4560'
     TIMEOUT_S = 0.05
@@ -63,6 +63,11 @@ class FlightAxis:
     # 1 -> pitch
     # 2 -> yaw
     # 3 -> throttle
+
+    #Throttle idx 3
+    # Rudder idx 2
+    # Roll idx 0
+    # Pitch ?
     YAW_IDX = (0,3,True)
     THROTTLE_IDX = (1,2,False)
     ROLL_IDX = (2,0,True)
@@ -406,7 +411,6 @@ class FlightAxis:
         self.mag_intensity_gauss = total_intensity['value']*FlightAxis.NANOTESLA_TO_GAUSS
         print(f"Updated mag: mag_declination_deg={self.mag_declination_deg}, mag_inclination_deg={self.mag_inclination_deg}, mag_intensity_gauss={self.mag_intensity_gauss}")
 
-
     def getHilActuatorControls(self) -> bool:
         """
         Attempt to receive HIL_ACTUATOR_CONTROLS message and
@@ -417,22 +421,27 @@ class FlightAxis:
         TODO: scale the controls properly
         """
         msg = self.connection.recv_match(blocking=False)
-        #msg = self.connection.recv_match(type='HIL_ACTUATOR_CONTROLS',blocking=True)
-        return True if msg else False
+        if msg:
+            if msg.name == 'HIL_ACTUATOR_CONTROLS':
+                # TODO: gear/mode and such - this might have to be configured in QGroundControl
+                # as a Joystick input (not great) 
+                controls = msg.controls
+                mode = msg.mode
+                flags = msg.flags
+                for channel in FlightAxis.CHANNELS:
+                    #joy_idx, rc_idx, channelInverted = channel
+                    # Throttle 5
+                    self.rcin[2] = controls[4]
+                    # Roll 6
+                    self.rcin[0] = (-1.0*controls[5] + 1.0)/2.0
+                    # Pitch 7
+                    self.rcin[1] = (-1.0*controls[7] + 1.0)/2.0
+                    # Rudder 3 OK
+                    self.rcin[3] = (controls[2] + 1.0)/2.0
 
-        # t_start = time.time()
-        # msg = None
-        # while ( ((time.time() - t_start) < FlightAxis.TIMEOUT_S) or msg):
-        #     msg = self.connection.recv_match(type='HIL_ACTUATOR_CONTROLS',blocking=False)
-        #     #msg = self.connection.recv_match(blocking=False)
-        #     # type = 'HITL_RC_INPUTS_RAW' to check the RC inputs
-        # if msg:
-        #     print(f"{msg}")
-        #     for idx in range(1,FlightAxis.RC_CHANNLES):
-        #         self.rcin[idx] = msg.controls[idx]
-        #     return True
-        # else:
-        #     return False
+                #print(f"THROTTLE: {self.rcin[2]}, RUDDER: {self.rcin[3]}, ROLL: {self.rcin[0]}, PITCH: {self.rcin[1]}")
+                
+        return True if msg else False
 
     def sendHilSensor(self):
         """
@@ -453,7 +462,7 @@ class FlightAxis:
             # TODO: we are assuming the mag field representation is correct
             *self.mag1.T.tolist()[0], # float [gauss] X / Y / Z Magnetic field
             10133, # TODO float [hPa] Absolute pressure
-            0, # TODO float [hPa] Differential pressure (airspeed)
+            self.m_airspeed_MPS, # TODO float [hPa] Differential pressure (airspeed)
             0, # TODO float [NA] Altitude calculated from pressure
             21, # TODO float [degC] Temperature
             int('1FFF',16) # Fields updated (uint16_t)0x1FFF
@@ -536,16 +545,25 @@ signal.signal(signal.SIGINT, signal_handler)
 print('Press Ctrl+C')
 
 
-pygame.init()
-pygame.joystick.init()
+JOYSTICK_DIRECT = False
 
-joystick = pygame.joystick.Joystick(1)
-joystick.init()
-print(f"{joystick.get_name()}")
+if JOYSTICK_DIRECT:
+    pygame.init()
+    pygame.joystick.init()
+
+    joystick = pygame.joystick.Joystick(0)
+    joystick.init()
+    print(f"{joystick.get_name()}")
+
 
 fa = FlightAxis()
+# 1) Disable RC control and start FlightAxis
 fa.enableRC()
 fa.disableRC()
+# 2) exchange data once to set RC inputs to zeros
+fa.getStates()
+# 3) reset the simulator to a known initial state
+fa.resetSim()
 
 rc_values = {0: 0, 1:0, 2:0, 3:0, 4:0, 5:0, 6:0, 7:0, 8:0}
 done = False
@@ -557,13 +575,15 @@ while not done:
         # print stats
         print(f"avg_f = {1/fa.avg_dt}[HZ]")
         now = t
-    for event in pygame.event.get():
-        #print(event)
-        if event.type == pygame.QUIT:
-            done = True
-        if event.type == pygame.JOYAXISMOTION:
-            rc_values[event.axis] = event.value
-    fa.updateActuators(rc_values)
+    # TODO: hide this inside FlightAxis(), perhaps a conf in the constructor?
+    if JOYSTICK_DIRECT:
+        for event in pygame.event.get():
+            #print(event)
+            if event.type == pygame.QUIT:
+                done = True
+            if event.type == pygame.JOYAXISMOTION:
+                rc_values[event.axis] = event.value
+        fa.updateActuators(rc_values)
     fa.getStates()
     fa.sendHilSensor()
     fa.sendHilGps()
