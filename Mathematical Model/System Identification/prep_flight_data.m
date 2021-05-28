@@ -167,81 +167,181 @@ title("Yaw Rate")
 % to do 
 % Handle this so we are saving the right thing
 
-% answer = questdlg('Which plot would you like to select time stamps from?', ...
-% 	'Plot Menu', ...
-% 	'Aileron Input','Elevator Input','Time Plot','Time Plot');
-% % Handle response
-% switch answer
-%     case 'Aileron Input'
-%         disp([answer ' coming right up.'])
-%         dispPlot = 1;
-%     case 'Elevator Input'
-%         disp([answer ' coming right up.'])
-%         dispPlot = 2;
-%     case 'Time Plot'
-%          disp([answer ' coming right up.'])
-%         dispPlot = 0;
-% end
+answer = questdlg('Which plot would you like to select time stamps from?', ...
+	'Plot Menu', ...
+	'Airspeed','Elevator Input','Roll','Airspeed');
+% Handle response
+switch answer
+    case 'Airspeed'
+        disp([answer ' coming right up.'])
+        dispPlot = 1;
+    case 'Elevator Input'
+        disp([answer ' coming right up.'])
+        dispPlot = 2;
+    case 'Roll'
+         disp([answer ' coming right up.'])
+        dispPlot = 0;
+end
 
 
 
 
 %% Handle data and user input
 
-% to do
-% ask for user input
-
-t = t_full;
-y = rc_1;
-names = {'Elevator'};
-% Select the data
-figure; 
-plotData = plot(t_full, rc_1);
-brush on
-disp('Hit Enter in comand window when done brushing')
-pause;
-for k = 1:numel(plotData)
-    % Check that the property is valid for that type of object
-    % Also check if any points in that object are selected
-    if isprop(plotData(k),'BrushData') && any(plotData(k).BrushData)
-        % Output the selected data to the base workspace with assigned name
-        ptsSelected = logical(plotData(k).BrushData.');
-        data = [t(ptsSelected) y(ptsSelected,k)];
-        assignin('base',names{k},data)
+% Airspeed
+if dispPlot == 1
+    t = t_full;
+    y = vt_full;
+    names = {'Airspeed'};
+    % Select the data
+    figure; 
+    plotData = plot(t_full, vt_full);
+    brush on
+    disp('Hit Enter in comand window when done brushing')
+    pause;
+    for k = 1:numel(plotData)
+        % Check that the property is valid for that type of object
+        % Also check if any points in that object are selected
+        if isprop(plotData(k),'BrushData') && any(plotData(k).BrushData)
+            % Output the selected data to the base workspace with assigned name
+            ptsSelected = logical(plotData(k).BrushData.');
+            data = [t(ptsSelected) y(ptsSelected,k)];
+            assignin('base',names{k},data)
+        end
     end
-end
-init = Elevator(1,1);
-info = size(Elevator); 
-info = info(1); 
-exit = Elevator(info,1);
+    init = Airspeed(1,1);
+    info = size(Airspeed); 
+    info = info(1); 
+    exit = Airspeed(info,1);
 
-% Finding Time, set initial vals
-p = 1; 
-q = 1;
-w = 1;
+    % Finding Time, set initial vals
+    p = 1; 
+    q = 1;
+    w = 1;
 
-% Find the initial value to delete
-time=table2array(vals(:,38));
-for i=1:length(time(:,1))
-    if (time(p,:)~= init)
-        p=p+1;
-    elseif(time(p,:)== init)
-        break
+    % Find the initial value to delete
+    time=table2array(vals(:,m_currentPhysicsTime_SEC));
+    for i=1:length(time(:,1))
+        if (time(p,:)~= init)
+            p=p+1;
+        elseif(time(p,:)== init)
+            break
+        end
+            i=i+1;
     end
-        i=i+1;
-end
-% Find the exit value to delete
-time=table2array(vals(:,38));
-for u=1:length(time(:,1))
-    if (time(w,:)~= exit)
-         w = w +1;
-    elseif(time(w,:)== exit)
-        break
+    % Find the exit value to delete
+    time=table2array(vals(:,m_currentPhysicsTime_SEC));
+    for u=1:length(time(:,1))
+        if (time(w,:)~= exit)
+             w = w +1;
+        elseif(time(w,:)== exit)
+            break
+        end
+            u=u+1;
     end
-        u=u+1;
-end
 
+elseif dispPlot == 2
+    t = t_full;
+    y = rc_1;
+    names = {'Elevator'};
+    % Select the data
+    figure; 
+    plotData = plot(t_full, rc_1);
+    brush on
+    disp('Hit Enter in comand window when done brushing')
+    pause;
+    for k = 1:numel(plotData)
+        % Check that the property is valid for that type of object
+        % Also check if any points in that object are selected
+        if isprop(plotData(k),'BrushData') && any(plotData(k).BrushData)
+            % Output the selected data to the base workspace with assigned name
+            ptsSelected = logical(plotData(k).BrushData.');
+            data = [t(ptsSelected) y(ptsSelected,k)];
+            assignin('base',names{k},data)
+        end
+    end
+    init = Elevator(1,1);
+    info = size(Elevator); 
+    info = info(1); 
+    exit = Elevator(info,1);
 
+    % Finding Time, set initial vals
+    p = 1; 
+    q = 1;
+    w = 1;
+
+    % Find the initial value to delete
+    time=table2array(vals(:,m_currentPhysicsTime_SEC));
+    for i=1:length(time(:,1))
+        if (time(p,:)~= init)
+            p=p+1;
+        elseif(time(p,:)== init)
+            break
+        end
+            i=i+1;
+    end
+    % Find the exit value to delete
+    time=table2array(vals(:,m_currentPhysicsTime_SEC));
+    for u=1:length(time(:,1))
+        if (time(w,:)~= exit)
+             w = w +1;
+        elseif(time(w,:)== exit)
+            break
+        end
+            u=u+1;
+    end
+elseif dispPlot == 0
+    
+    t = t_full;
+    y = roll_full;
+    names = {'Roll_Plot'};
+    % Select the data
+    figure; 
+    plotData = plot(t_full, roll_full);
+    brush on
+    disp('Hit Enter in comand window when done brushing')
+    pause;
+    for k = 1:numel(plotData)
+        % Check that the property is valid for that type of object
+        % Also check if any points in that object are selected
+        if isprop(plotData(k),'BrushData') && any(plotData(k).BrushData)
+            % Output the selected data to the base workspace with assigned name
+            ptsSelected = logical(plotData(k).BrushData.');
+            data = [t(ptsSelected) y(ptsSelected,k)];
+            assignin('base',names{k},data)
+        end
+    end
+    init = Roll_Plot(1,1);
+    info = size(Roll_Plot); 
+    info = info(1); 
+    exit = Roll_Plot(info,1);
+
+    % Finding Time, set initial vals
+    p = 1; 
+    q = 1;
+    w = 1;
+
+    % Find the initial value to delete
+    time=table2array(vals(:,m_currentPhysicsTime_SEC));
+    for i=1:length(time(:,1))
+        if (time(p,:)~= init)
+            p=p+1;
+        elseif(time(p,:)== init)
+            break
+        end
+            i=i+1;
+    end
+    % Find the exit value to delete
+    time=table2array(vals(:,m_currentPhysicsTime_SEC));
+    for u=1:length(time(:,1))
+        if (time(w,:)~= exit)
+             w = w +1;
+        elseif(time(w,:)== exit)
+            break
+        end
+            u=u+1;
+    end
+end 
 
 %% Removing non-selected time
 
@@ -262,8 +362,28 @@ maxSize = maxSize(1);
 deleteSize = totalTime;
 vals([deleteSize+1:maxSize],:) = [];
 
+% Clip variables
+yawRate_full = table2array(vals(:,m_yawRate_DEGpSEC));
+vt_full = table2array(vals(:,m_airspeed_MPS));
+roll_full = table2array(vals(:,m_roll_DEG));
+incl_full = table2array(vals(:, m_inclination_DEG));
+q_full = table2array(vals(:,m_pitchRate_DEGpSEC));
+quat_w = table2array(vals(:,m_orientationQuaternion_W));
+quat_x = table2array(vals(:,m_orientationQuaternion_X));
+quat_y = table2array(vals(:,m_orientationQuaternion_Y));
+quat_z = table2array(vals(:,m_orientationQuaternion_Z));
+t_full = table2array(vals(:,m_currentPhysicsTime_SEC));
+rc_0 = table2array(vals(:,rc_channel_0)); % roll - aileron input
+rc_1 = table2array(vals(:,rc_channel_1)); % pitch - elevator input
+rc_2 = table2array(vals(:,rc_channel_2)); % throttle - throttle input
+rc_3 = table2array(vals(:,rc_channel_3)); % yaw - rudder input
+rc_4 = table2array(vals(:,rc_channel_4)); % Null
+rc_5 = table2array(vals(:,rc_channel_5)); % Null
+rc_6 = table2array(vals(:,rc_channel_6)); % gear
+rc_7 = table2array(vals(:,rc_channel_7)); % Null
+
 %move to an array
-vals = table2array(vals); 
+vals = table2array(vals);
 
 prompt = {'What do you want to rename the data to?'};
 dlgtitle = 'Rename Data File';
@@ -272,10 +392,11 @@ dims = [1 40];
 dataName = inputdlg(prompt,dlgtitle,dims,definput);
 save(dataName{1,1}, 'vals'); 
 
-
+close all
 % To do 
 % Handle Ulog File 
 
 % To do
 % Clean up code
+
 
