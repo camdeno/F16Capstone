@@ -65,23 +65,56 @@ init_sys.Structure.D.Free = false;                                         % don
 % Tasks
 % 1) use your script to select *two* sets of data - the requerements are
 % - starts as constant steady flight
+ first = load('Elev_Clipped_1.mat');
+ second = load('Elev_Clipped_2.mat');
+
 % - as little lateral move as possible?
 % - elevator input contains a frequency sweep
 % 2) The variables we need (for both lat and lon modes):
 % - timestamp (to calculate delta T)
+time_1 = first.vals(:,38);
+ts_1 = mean(diff(time_1));
+time_2 = second.vals(:,38);
+ts_2 = mean(diff(time_2));
 % - body velocity U
+bodyVel_U1 = first.vals(:,16);
+bodyVel_U2 = second.vals(:,16);
 % - body velocuty V
+bodyVel_V1 = first.vals(:,17);
+bodyVel_V2 = second.vals(:,17);
 % - body velocity W
+bodyVel_W1 = first.vals(:,18);
+bodyVel_W2 = second.vals(:,18);
 % - roll rate p (in rad/s!)
+rollRate_1 = first.vals(:,6).*(pi/180);
+rollRate_2 = second.vals(:,6).*(pi/180);
 % - pitch rate q (in rad/s!)
+pitchRate_1 = first.vals(:,5).*(pi/180);
+pitchRate_2 = second.vals(:,5).*(pi/180);
 % - yaw rate r (in rad/s!)
+yawRate_1 = first.vals(:,7).*(pi/180);
+yawRate_2 = second.vals(:,7).*(pi/180);
 % - roll angle phi (in rads!) 
+rollAng_1 = first.vals(:,10).*(pi/180);
+rollAng_2 = second.vals(:,10).*(pi/180);
 % - pitch angle theta (in rads!) - it is called "inclination" in the CSV data
+pitchAng_1 = first.vals(:,9).*(pi/180);
+pitchAng_2 = second.vals(:,9).*(pi/180);
 % - yaw angle psi (in rads!) - it is called "azimuth" in the CSV data
+yawAng_1 = first.vals(:,8).*(pi/180);
+yawAng_2 = second.vals(:,8).*(pi/180);
 % - elevator input
+elevIn_1 = first.vals(:,45);
+elevIn_2 = second.vals(:,45);
 % - throttle input
+throttleIn_1 = first.vals(:,46);
+throttleIn_2 = second.vals(:,46);
 % - aileron input
+ailIn_1 = first.vals(:,44);
+ailIn_2 = second.vals(:,44);
 % - rudder input
+rudIn_1 = first.vals(:,47);
+rudIn_2 = second.vals(:,47);
 % 3) Because the model calculates only a difference from some "trimmed"
 % input/state we need to find out what are the trimmed values for all
 % variables denoted above - you can mark them with "_0"
@@ -112,7 +145,6 @@ lsys = ssest(data, init_sys, 'DisturbanceModel','none');                   % est
 % Perhaps there is enough cross-coupling to do both in one shot
 %{
 A = (sym 8×8 matrix)
-
   ⎡Xu  Xw  -W₀ + Xq  -g⋅cos(Θ₀)  0      0        0          0    ⎤
   ⎢                                                              ⎥
   ⎢Zu  Zw  U₀ + Zq   -g⋅sin(Θ₀)  0      0        0          0    ⎥
@@ -128,9 +160,7 @@ A = (sym 8×8 matrix)
   ⎢0   0      0          0       Nv    Np        Nr         0    ⎥
   ⎢                                                              ⎥
   ⎣0   0      0          0       0      1     tan(Θ₀)       0    ⎦
-
 B = (sym 8×4 matrix)
-
   ⎡Xde  Xdt   0    0 ⎤
   ⎢                  ⎥
   ⎢Zde  Zdt   0    0 ⎥
