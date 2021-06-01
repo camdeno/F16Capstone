@@ -53,7 +53,8 @@ for idx = 1:size(header,2);
     eval(expr);
 end
 %% Prepare Data to be moved from table to array 
-
+if answer{2,1} == 1
+else
 Data_types = {'True', 'False'};
 Data_value = [      1,        0];
 [wasfound, idx] = ismember(vals.m_isLocked, Data_types);
@@ -75,6 +76,7 @@ vals.m_anEngineIsRunning = f_values;
 f_values = nan(length(idx), 1);
 f_values(wasfound) = Data_value(idx(wasfound));
 vals.m_isTouchingGround = f_values;
+end 
 % vals.Properties.VariableDescriptions has the header
 %% Longitudial model 
 % Stevens:  x=[alpha, q, v_t, phi] u = [delta_e, delta_t]
@@ -127,6 +129,9 @@ m_accelerationBodyAY_MPS2 = 23;
 m_accelerationBodyAZ_MPS2 = 24; 
 m_windX_MPS = 25;
 
+pos_x = table2array(vals(:,m_aircraftPositionX_MTR));
+pos_y = table2array(vals(:,m_aircraftPositionY_MTR)); 
+
 % Get variables
 yawRate_full = table2array(vals(:,m_yawRate_DEGpSEC));
 vt_full = table2array(vals(:,m_airspeed_MPS));
@@ -177,8 +182,8 @@ plot(t_full,vt_full)
 title("Airspeed")
 
 subplot(2,4,8)
-plot(t_full,yawRate_full)
-title("Yaw Rate")
+plot(pos_x,pos_y)
+title("Position")
 
 
 %% Select Data the User would Like
