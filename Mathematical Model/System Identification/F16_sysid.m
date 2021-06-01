@@ -119,13 +119,46 @@ rudIn_2 = second.vals(:,47);
 % input/state we need to find out what are the trimmed values for all
 % variables denoted above - you can mark them with "_0"
 % The data you use then have this trimmed value subtracted 
+
+avgElevIn = mean(elevIn_1, [1 10]);
+avgThrottleIn = mean(throttleIn_1, [1 10]);
+
+elevIn_1_0 = elevIn_1-avgElevIn;
+throttleIn_1_0 = throttleIn_1-avgThrottleIn;
+
+u_1 = [elevIn_1_0 throttleIn_1_0];
+
+% x and u have to be equal
+bodyVel_U1_0 = bodyVel_U1;
+bodyVel_W1_0 = bodyVel_W1;
+pitchRate_1_0 = pitchRate_1;
+pitchAng_1_0 = pitchAng_1;
+
+x_1 = [bodyVel_U1_0 bodyVel_W1_0 pitchRate_1_0 pitchAng_1_0];
 % 3) put data into a data structure
-% data = iddata(x, u, ts);                                                   % put trajectories into id data structure
+% data = iddata(x, u, ts);    
+% put trajectories into id data structure
+
+% Longitudinal 
+% x = [u w q theta]
+% u = [delta_elevator, delta_throttle]
+
+% Lateral
+% x = [v p r phi]
+% u = [delta_aileron, delta_rudder]
+
+
+data_1 = iddata(x_1,u_1,ts_1);
+%data_2 = iddata(x_2,u_2,ts_2);
+
 % where ts is the average sampling period
 % 4) the same for the validation data (second set)
+
+
 %% System Identification
 % data in this case are the training data (first set)
-lsys = ssest(data, init_sys, 'DisturbanceModel','none');                   % estimate the linear system dynamics
+opt = ssestOptions('EnforceStability',true);
+lsys = ssest(data_1, init_sys, 'DisturbanceModel','none',opt);                   % estimate the linear system dynamics
 
 
 %% Latereal mode
