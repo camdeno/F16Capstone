@@ -2,7 +2,7 @@ Created a folder to store resources provided by Galois and ECE 412 professors.
 
 # NOTES
 
-## RealFligth & SITL
+## RealFlight & SITL
 
 Good news is that RealFlight contains a Flight Dynamics Model of the RC F16, and has so called *Flight Axis* interface for data input/output.
 And Ardupilot implements/supports this interface, so it is (at least theoretically) possible to use RealFlight+Ardupilot for SITL.
