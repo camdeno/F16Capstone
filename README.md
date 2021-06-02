@@ -21,9 +21,37 @@
 </p>
 
 
-Team 5 Capstone git for the F16 Modeling and Simulation. Winter/Spring 2020-2021.
+<!-- TABLE OF CONTENTS -->
+<details open="open">
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+    <li>
+      <a href="#getting-started">Getting Started</a>
+      <ul>
+        <li><a href="#prerequisites">Prerequisites</a></li>
+        <li><a href="#installation">Installation</a></li>
+      </ul>
+    </li>
+    <li><a href="#usage">Usage</a></li>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#contributing">Contributing</a></li>
+    <li><a href="#license">License</a></li>
+    <li><a href="#contact">Contact</a></li>
+    <li><a href="#acknowledgements">Acknowledgements</a></li>
+  </ol>
+</details>
 
-The objective of this project is to develop a dynamic model of a scaled-down Radio Controlled F-16 Falcon jet and perform flight simulation as well as a real flight. Galois, the industry sponsor, plans to use models to circumvent the inconvenience of flight testing real aircraft. This project is open-source, so the Cyber-Physical System Research Community and some hobbyists can also use the data and information our team collects for flight simulation. In this project, our team needs to use the supplied Pixhawk software stack to determine the flight dynamics of a small-scale model RC F-16 aircraft and develop trusted flight control software.
 
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
 
 ![F16](./Resources/f16.jpeg)
+
+The objective of this project is to develop a dynamic model of a scaled-down Radio Controlled F-16 Falcon jet and perform flight simulation as well as a real flight. Galois, the industry sponsor, plans to use models to circumvent the inconvenience of flight testing real aircraft. This project is open-source, so the Cyber-Physical System Research Community and some hobbyists can also use the data and information our team collects for flight simulation. In this project, our team needs to use the supplied Pixhawk software stack to determine the flight dynamics of a small-scale model RC F-16 aircraft and develop trusted flight control software.
