@@ -3,7 +3,7 @@
 <br />
 <p align="center">
   <a href="https://github.com/camdeno/F16Capstone/blob/main/Resources/Images/F16%20In%20the%20Field.jpg">
-    <img src="images/logo.png" alt="Logo" width="80" height="80">
+    <img src="https://github.com/camdeno/F16Capstone/blob/main/Resources/Images/F16%20In%20the%20Field.jpg" alt="Logo" width="80" height="80">
   </a>
 
   <h3 align="center">F-16 Capstone: Modeling and Simulation</h3>
