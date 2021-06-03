@@ -181,7 +181,7 @@ This file holds the flight test plan for system identification and an initial te
 <!-- USAGE EXAMPLES -->
 ## Usage
 
-To run the nonlinear model of the scaled down flight, download the files out of the [Matlab Scrip](https://github.com/camdeno/F16Capstone/tree/main/Mathematical%20Model/Matlab%20Script). Then, enter initial conditions, U and x0, in the F16Constants script. Enter 1 or 2 for the model you like to run and view the outputs. 
+To run the nonlinear model of the scaled down flight, download the files out of the [Matlab Script](https://github.com/camdeno/F16Capstone/tree/main/Mathematical%20Model/Matlab%20Script). Then, enter initial conditions, U and x0, in the F16Constants script. Enter 1 or 2 for the model you like to run and view the outputs. 
 
 <!-- ROADMAP -->
 ## Roadmap
