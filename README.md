@@ -50,6 +50,7 @@
           <li><a href="#testing-documentation">Testing Documentation</a></li>
       </ol>  
     </details>
+    <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#license">License</a></li>
     <li><a href="#acknowledgements">Acknowledgements</a></li>
@@ -177,13 +178,15 @@ The folder contains:
 
 This file holds the flight test plan for system identification and an initial test plan for the system. The initial test plan was not used and has been archived here for reference. 
 
+<!-- USAGE EXAMPLES -->
+## Usage
+
+To run the nonlinear model of the scaled down flight, download the files out of the [Matlab Scrip](https://github.com/camdeno/F16Capstone/tree/main/Mathematical%20Model/Matlab%20Script). Then, enter initial conditions, U and x0, in the F16Constants script. Enter 1 or 2 for the model you like to run and view the outputs. 
 
 <!-- ROADMAP -->
 ## Roadmap
 
 See the [open issues](https://github.com/camdeno/F16Capstone/issues) for a list of proposed features (and known issues).
-
-
 
 <!-- License -->
 ## License 
