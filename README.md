@@ -69,7 +69,7 @@ Galois, the industry sponsor, plans to use models to circumvent the inconvenienc
 <!-- ABOUT THE PROJECT -->
 ### Built With
 
-Matlab was used for primary system identification and the nonlinear model. Flightaxis is used to extract data from the Realflight 9.5 simulator. 
+Matlab was used for primary system identification and the nonlinear model. Flight Axis is used to extract data from the Realflight 9.5 simulator. 
 * [Matlab]( https://www.mathworks.com/products/matlab.html)
 * [Flightaxis]( https://github.com/ArduPilot/ardupilot/blob/master/libraries/SITL/SIM_FlightAxis.cpp)
 
