@@ -174,14 +174,13 @@ The folder contains:
 <!-- Testing Documentation-->
 ## Testing Documentation
 
+This file holds the flight test plan for system identification and an initial test plan for the system. The initial test plan was not used and has been archived here for reference. 
 
 
 <!-- ROADMAP -->
 ## Roadmap
 
 See the [open issues](https://github.com/camdeno/F16Capstone/issues) for a list of proposed features (and known issues).
-
-
 
 
 
