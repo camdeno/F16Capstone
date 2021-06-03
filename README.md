@@ -50,6 +50,7 @@
           <li><a href="#testing-documentation">Testing Documentation</a></li>
       </ol>  
     </details>
+    <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#license">License</a></li>
   </ol>
 </details>
@@ -106,6 +107,15 @@ Flight Data provides information on the physical flight testing done by the caps
 
 <!-- Testing Documentation-->
 ## Testing Documentation
+
+<!-- ROADMAP -->
+## Roadmap
+
+See the [open issues](https://github.com/camdeno/F16Capstone/issues) for a list of proposed features (and known issues).
+
+
+
+
 
 <!-- License -->
 ## License 
