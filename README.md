@@ -1,4 +1,141 @@
 # F16Capstone
-Team 5 Capstone git for the F16 Modeling and Simulation. Winter/Spring 2020-2021.
+<!-- PROJECT LOGO -->
+<br />
+<p align="center">
+  <a href="https://github.com/camdeno/F16Capstone/blob/main/Resources/Images/F16%20In%20the%20Field.jpg">
+    <img src="https://github.com/camdeno/F16Capstone/blob/main/Resources/Images/F16%20In%20the%20Field.jpg" alt="Logo" width="180" height="160">
+  </a>
+
+  <h3 align="center">F-16 Capstone: Modeling and Simulation</h3>
+
+  <p align="center">
+   The objective of this project is to develop a dynamic model of a scaled-down Radio Controlled F-16 Falcon jet and perform flight simulation as well as a real flight.
+    <br />
+    <a href="https://github.com/camdeno/F16Capstone"><strong>Explore the docs »</strong></a>
+    <br />
+    <br />
+    <a href="https://github.com/camdeno/F16Capstone/tree/main/Mathematical%20Model/Matlab%20Script">Nonlinear Model Script</a>
+    <a href="https://github.com/camdeno/F16Capstone/tree/main/Testing%20Documentation">Testing Documentation</a>
+    <a href="https://github.com/camdeno/F16Capstone/issues">Report Bug</a>
+  </p>
+</p>
+
+
+<!-- TABLE OF CONTENTS -->
+<details open="open">
+  <summary>Table of Contents</summary>
+  <ol>
+    <li>
+      <a href="#about-the-project">About The Project</a>
+      <ul>
+        <li><a href="#built-with">Built With</a></li>
+      </ul>
+    </li>
+      <details open="open">
+      <summary>Project Documents</summary>
+      <ol>
+          <li>
+           <a href="#flight-axis">Flight Axis</a>
+         </li>
+          <li><a href="#flight-data">Flight Data</a></li>
+          <li><a href="#literature">Literature</a></li>
+          <li><a href="#mathematical-model">Mathematical Model</a></li>
+          <li><a href="#literature">literature</a></li>
+          <li><a href="#meeting-agenda">Meeting Agenda</a></li>
+          <li><a href="#project-requirements">Project Requirements</a></li>
+          <li><a href="#project-schedule">Project Schedule</a></li>
+          <li><a href="#rc-physical-model">RC Physical Model</a></li>
+          <li><a href="#resources">Resources</a></li>
+          <li><a href="#sitl">SITL</a></li>
+          <li><a href="#testing-documentation">Testing Documentation</a></li>
+      </ol>  
+    </details>
+    <li><a href="#roadmap">Roadmap</a></li>
+    <li><a href="#license">License</a></li>
+  </ol>
+</details>
+
+
+
+<!-- ABOUT THE PROJECT -->
+## About The Project
 
 ![F16](./Resources/f16.jpeg)
+
+Galois, the industry sponsor, plans to use models to circumvent the inconvenience of flight testing real aircraft. This project is open-source, so the Cyber-Physical System Research Community and some hobbyists can also use the data and information our team collects for flight simulation. In this project, our team needs to use the supplied Pixhawk software stack to determine the flight dynamics of a small-scale model RC F-16 aircraft and develop trusted flight control software.
+
+<!-- ABOUT THE PROJECT -->
+### Built With
+
+Matlab was used for primary system identification and the nonlinear model. Flightaxis is used to extract data from the Realflight 9.5 simulator. 
+* [Matlab]( https://www.mathworks.com/products/matlab.html)
+* [Flightaxis]( https://github.com/ArduPilot/ardupilot/blob/master/libraries/SITL/SIM_FlightAxis.cpp)
+
+<!-- Flight Axis -->
+## Flight Axis
+
+Flight Axis provides a link to RealFlight 9.5, the RC Plane simulator, to output a csv file of the states and controls of the RC plane. Flight Axis is provided by Ardupilot free software for the development of autonomous autopilot systems. 
+
+<!-- Flight Data -->
+## Flight Data
+
+Flight Data provides information on the physical flight testing done by the capstone team. This should contain videos of flights, ulog files from qgroundcontrol and the pixhawk, and links to the flight log analysis from [Pixhawk](https://logs.px4.io/)
+
+<!-- Literature-->
+## Literature
+
+The Literature folder provides a large array of literature used in this capstone project. Each piece of literature is accompanied by a summary of the document. Some documents are also accompanied by the importance to our project, denoted by reccomended or interesting read. The main reference papers we used are:
+
+* Aircraft Control and Simulation: Dynamics, Controls Design, and Autonomous Systems: Dynamics, Controls Design, and Autonomous Systems
+  * This text was used to develop the Mathematical Model and for general research purposes   
+* System Identification for Small, Low-Cost, Fixed-Wing Unmanned Aircraft
+  * This text was used to develop flight tests, moment of inertia tests, as well as general research purposes
+* Development and Validation of a Flight-Identified Full Envelope Business Jet Simulation Model Using a Stitching Architecture
+  * This text was used to develop flight tests, understand system identification, and provide a linear model for system identification 
+
+
+<!-- Mathematical Model -->
+## Mathematical Model
+
+<!-- Meeting Agenda -->
+## Meeting Agenda
+
+<!-- Project Requirements -->
+## Project Requirements
+
+<!-- Project Schedule -->
+## Project Requirements
+
+<!-- Rc Physical Model -->
+## RC Physical Model
+
+<!-- Resources -->
+## Resources
+
+<!-- SITL-->
+## SITL
+
+<!-- Testing Documentation-->
+## Testing Documentation
+
+<!-- ROADMAP -->
+## Roadmap
+
+See the [open issues](https://github.com/camdeno/F16Capstone/issues) for a list of proposed features (and known issues).
+
+
+
+
+
+<!-- License -->
+## License 
+Distributed under the MIT License. See `LICENSE` for more information.
+
+<!-- -->
+[Readme Template](https://github.com/othneildrew/Best-README-Template)
+
+
+
+
+
+
