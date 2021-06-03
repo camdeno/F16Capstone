@@ -151,8 +151,17 @@ The RC Physical Model Folder is primarily where information on sensors and hardw
 <!-- Resources -->
 ## Resources
 
+The Resources folder provides pivotal information for the students and Galois.
+* ECE 412 Documents contains references for the students from the ECE 412 Professors, Andrew Greenberg and Mark Faust
+* Galois Documents provides the initial Capstone Proposal from Galois to the students and an inital SITL/HITL information
+* Images contains all the images taken of the physical model during the duration of the capstone project
+* Student Documents contains notes and references used by the Capstone Team 
+
+
 <!-- SITL-->
 ## SITL
+
+
 
 <!-- Testing Documentation-->
 ## Testing Documentation
