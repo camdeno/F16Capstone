@@ -166,7 +166,7 @@ The software in the loop file contains information relating to the capstone team
 The folder contains:
 * Flight Path File
   * A folder for flight paths when the model was upfitted to fly autonomously - this currently holds one racetrack pattern
-*  Practice SITL Log Files
+* Practice SITL Log Files
   * A collection of log files from the early explorations of SITL- these were all explored in ubuntu with flight gear and qgroundcontrol  
 * RC F16 FDM
   * Attempt to implement F16 Model in SITL
