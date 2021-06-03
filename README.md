@@ -31,20 +31,25 @@
         <li><a href="#built-with">Built With</a></li>
       </ul>
     </li>
-    <li>
-      <a href="#flight-axis">Flight Axis</a>
-    </li>
-    <li><a href="#flight-data">Flight Data</a></li>
-    <li><a href="#literature">Literature</a></li>
-    <li><a href="#mathematical-model">Mathematical Model</a></li>
-    <li><a href="#literature">literature</a></li>
-    <li><a href="#meeting-agenda">Meeting Agenda</a></li>
-    <li><a href="#project-requirements">Project Requirements</a></li>
-    <li><a href="#project-schedule">Project Schedule</a></li>
-    <li><a href="#rc-physical-model">RC Physical Model</a></li>
-    <li><a href="#resources">Resources</a></li>
-    <li><a href="#sitl">SITL</a></li>
-    <li><a href="#testing-documentation">Testing Documentation</a></li>
+      <details open="open">
+      <summary>Project Documents</summary>
+      <ol>
+          <li>
+           <a href="#flight-axis">Flight Axis</a>
+         </li>
+          <li><a href="#flight-data">Flight Data</a></li>
+          <li><a href="#literature">Literature</a></li>
+          <li><a href="#mathematical-model">Mathematical Model</a></li>
+          <li><a href="#literature">literature</a></li>
+          <li><a href="#meeting-agenda">Meeting Agenda</a></li>
+          <li><a href="#project-requirements">Project Requirements</a></li>
+          <li><a href="#project-schedule">Project Schedule</a></li>
+          <li><a href="#rc-physical-model">RC Physical Model</a></li>
+          <li><a href="#resources">Resources</a></li>
+          <li><a href="#sitl">SITL</a></li>
+          <li><a href="#testing-documentation">Testing Documentation</a></li>
+      </ol>  
+    </details>
   </ol>
 </details>
 
