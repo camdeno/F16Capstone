@@ -52,6 +52,7 @@
     </details>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#license">License</a></li>
+    <li><a href="#acknowledgements">Acknowledgements</a></li>
   </ol>
 </details>
 
@@ -188,11 +189,11 @@ See the [open issues](https://github.com/camdeno/F16Capstone/issues) for a list 
 ## License 
 Distributed under the MIT License. See `LICENSE` for more information.
 
-<!-- -->
+<!--Acknowledgements -->
+## Acknowledgements 
+
+Our capstone team would like to express our deepest gratitude towards Dr. James McNames of Portland State and Michal Podhradsky of Galois. Without Dr. McNames' unwavering support and Michal's extensive knowledge. Without their help, none of this would be possible. 
+
 [Readme Template](https://github.com/othneildrew/Best-README-Template)
-
-
-
-
 
 
