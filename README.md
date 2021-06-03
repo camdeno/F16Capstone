@@ -124,14 +124,22 @@ The Mathematical Model folder holds the primary work on the github. This folder 
 <!-- Meeting Agenda -->
 ## Meeting Agenda
 
+Holds the meeting agenda and tasks from each week of the Capstone, Jan 2021 - June 2021. These agendas were provided by the Capstone Team, Advisor, and Sponsor. 
+
 <!-- Project Requirements -->
 ## Project Requirements
 
+Holds the Project Requirements in the form of the Project Proposal, this is what the team set out in January 2021 to accomplish. 
+
 <!-- Project Schedule -->
-## Project Requirements
+## Project Schedule 
+
+Contains a MS Project file of the teams initial project schedule. The PDF version can be found in the Project Requirements folder. 
 
 <!-- Rc Physical Model -->
 ## RC Physical Model
+
+
 
 <!-- Resources -->
 ## Resources
