@@ -139,7 +139,14 @@ Contains a MS Project file of the teams initial project schedule. The PDF versio
 <!-- Rc Physical Model -->
 ## RC Physical Model
 
-
+The RC Physical Model Folder is primarily where information on sensors and hardwares are stored. It contains the following folders and documents:
+* AOA Sensor
+  *  3D Model of the Angle of Attack Wind Vane that was attempted be mounted on the plane
+  *  Code to connect the Angle of Attack to the PX4
+  *  Relevant information to the Angle of Attack Sensor
+* Sensor Noise Analysis Report
+* Physical measurements recorded of the Small Scale F16 
+* Relating Documents to the PX4 Mini
 
 <!-- Resources -->
 ## Resources
