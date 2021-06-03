@@ -84,6 +84,16 @@ Flight Data provides information on the physical flight testing done by the caps
 <!-- Literature-->
 ## Literature
 
+The Literature folder provides a large array of literature used in this capstone project. Each piece of literature is accompanied by a summary of the document. Some documents are also accompanied by the importance to our project, denoted by reccomended or interesting read. The main reference papers we used are:
+
+* Aircraft Control and Simulation: Dynamics, Controls Design, and Autonomous Systems: Dynamics, Controls Design, and Autonomous Systems
+  * This text was used to develop the Mathematical Model and for general research purposes   
+* System Identification for Small, Low-Cost, Fixed-Wing Unmanned Aircraft
+  * This text was used to develop flight tests, moment of inertia tests, as well as general research purposes
+* Development and Validation of a Flight-Identified Full Envelope Business Jet Simulation Model Using a Stitching Architecture
+  * This text was used to develop flight tests, understand system identification, and provide a linear model for system identification 
+
+
 <!-- Mathematical Model -->
 ## Mathematical Model
 
