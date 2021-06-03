@@ -33,10 +33,6 @@
     </li>
     <li>
       <a href="#flight-axis">Flight Axis</a>
-      <ul>
-        <li><a href="#prerequisites">Prerequisites</a></li>
-        <li><a href="#installation">Installation</a></li>
-      </ul>
     </li>
     <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
@@ -59,12 +55,13 @@ The objective of this project is to develop a dynamic model of a scaled-down Rad
 <!-- ABOUT THE PROJECT -->
 ### Built With
 
-Matlab was used for primary system identification and the nonlinear . Flightaxis was used to extract data from the Realflight 9.5 simulator. 
+Matlab was used for primary system identification and the nonlinear model. Flightaxis is used to extract data from the Realflight 9.5 simulator. 
 * [Matlab]( https://www.mathworks.com/products/matlab.html)
-* [Flightaxis]( http://www.knifeedge.com/)
+* [Flightaxis]( https://github.com/ArduPilot/ardupilot/blob/master/libraries/SITL/SIM_FlightAxis.cpp)
 
-<!-- GETTING STARTED -->
+<!-- Flight Axis -->
 ## Flight Axis
 
-This is an example of how you may give instructions on setting up your project locally.
-To get a local copy up and running follow these simple example steps.
+Flight Axis provides a link to RealFlight 9.5, the RC Plane simulator, to output a csv file of the states and controls of the RC plane. Flight Axis is provided by Ardupilot free software for the development of autonomous autopilot systems. 
+
+
