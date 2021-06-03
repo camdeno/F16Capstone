@@ -32,7 +32,7 @@
       </ul>
     </li>
       <details open="open">
-      <summary>Project Documents</summary>
+      <summary>Project Documents Overview</summary>
       <ol>
           <li>
            <a href="#flight-axis">Flight Axis</a>
@@ -96,6 +96,30 @@ The Literature folder provides a large array of literature used in this capstone
 
 <!-- Mathematical Model -->
 ## Mathematical Model
+
+The Mathematical Model folder holds the primary work on the github. This folder contains the following sub folders and current states: 
+
+* Learjet 
+  * Provides an example system identification of a known model from the learjet paper   
+* Matlab Script
+  * Mat files were used to send signals to FlightAxis to use in System Identification
+  * F16Constants is used to call the simulink models and provide them initial conditions
+    * Testsimulation.slx is the full scale simulink model, it includes control limits, and the state derivative file
+    * F16Simulation_SC.slx is the small scale simulink model, it includes control limes, and the small scale state derivative file
+  * F16sixDegreeFreedom.m and SC.m is the large and small scale state derivatives vector, respectively
+* Python Script
+  * This was used at the start of the project and was a start at converting the fortran state derivatives model to python. This work was stopped early in the project, but has been archived in the repository   
+* Simulation Results
+  * Stores the output of the cost function of the small and large scale files
+  * Stores steady state and impulse responses of the large and small scale files
+* System Identification
+  * Outputs of FlightAxis are stored as MAT and CSV files 
+  * F16_sysid is an initial attempt at system Identification
+  * FlightLogAnalysis and ReadCSV have been replaced by prep_flight_data and should not be used to handle CSV and Matfiles
+  * prep_flight_data loads a MAT or a CSV file from FlightAxis and allows the user to use the brushing tool to save the file as a specified name
+  * inputsdlg is a necessary file with the prep_flight_data to load a file
+* Variables 
+  * Stores the Variables and Coefficient Definitions of the Mathematical Model   
 
 <!-- Meeting Agenda -->
 ## Meeting Agenda
