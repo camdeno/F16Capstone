@@ -50,6 +50,7 @@
           <li><a href="#testing-documentation">Testing Documentation</a></li>
       </ol>  
     </details>
+    <li><a href="#license">License</a></li>
   </ol>
 </details>
 
@@ -105,3 +106,15 @@ Flight Data provides information on the physical flight testing done by the caps
 
 <!-- Testing Documentation-->
 ## Testing Documentation
+
+<!-- License -->
+## License 
+Distributed under the MIT License. See `LICENSE` for more information.
+
+
+
+
+
+
+
+
