@@ -32,7 +32,7 @@
       </ul>
     </li>
       <details open="open">
-      <summary>Project Documents</summary>
+      <summary>Project Documents Overview</summary>
       <ol>
           <li>
            <a href="#flight-axis">Flight Axis</a>
@@ -50,8 +50,10 @@
           <li><a href="#testing-documentation">Testing Documentation</a></li>
       </ol>  
     </details>
+    <li><a href="#usage">Usage</a></li>
     <li><a href="#roadmap">Roadmap</a></li>
     <li><a href="#license">License</a></li>
+    <li><a href="#acknowledgements">Acknowledgements</a></li>
   </ol>
 </details>
 
@@ -67,7 +69,7 @@ Galois, the industry sponsor, plans to use models to circumvent the inconvenienc
 <!-- ABOUT THE PROJECT -->
 ### Built With
 
-Matlab was used for primary system identification and the nonlinear model. Flightaxis is used to extract data from the Realflight 9.5 simulator. 
+Matlab was used for primary system identification and the nonlinear model. Flight Axis is used to extract data from the Realflight 9.5 simulator. 
 * [Matlab]( https://www.mathworks.com/products/matlab.html)
 * [Flightaxis]( https://github.com/ArduPilot/ardupilot/blob/master/libraries/SITL/SIM_FlightAxis.cpp)
 
@@ -97,45 +99,104 @@ The Literature folder provides a large array of literature used in this capstone
 <!-- Mathematical Model -->
 ## Mathematical Model
 
+The Mathematical Model folder holds the primary work on the github. This folder contains the following sub folders and current states: 
+
+* Learjet 
+  * Provides an example system identification of a known model from the learjet paper   
+* Matlab Script
+  * Mat files were used to send signals to FlightAxis to use in System Identification
+  * F16Constants is used to call the simulink models and provide them initial conditions
+    * Testsimulation.slx is the full scale simulink model, it includes control limits, and the state derivative file
+    * F16Simulation_SC.slx is the small scale simulink model, it includes control limits, and the small scale state derivative file
+  * F16sixDegreeFreedom.m and SC.m is the large and small scale state derivatives vector, respectively
+* Python Script
+  * This was used at the start of the project and was a start at converting the fortran state derivatives model to python. This work was stopped early in the project, but has been archived in the repository   
+* Simulation Results
+  * Stores the output of the cost function of the small and large scale files
+  * Stores steady state and impulse responses of the large and small scale files
+* System Identification
+  * Outputs of FlightAxis are stored as MAT and CSV files 
+  * F16_sysid is an initial attempt at system Identification
+  * FlightLogAnalysis and ReadCSV have been replaced by prep_flight_data and should not be used to handle CSV and Matfiles
+  * prep_flight_data loads a MAT or a CSV file from FlightAxis and allows the user to use the brushing tool to save the file as a specified name
+  * inputsdlg is a necessary file with the prep_flight_data to load a file
+* Variables 
+  * Stores the Variables and Coefficient Definitions of the Mathematical Model   
+
 <!-- Meeting Agenda -->
 ## Meeting Agenda
+
+Holds the meeting agenda and tasks from each week of the Capstone, Jan 2021 - June 2021. These agendas were provided by the Capstone Team, Advisor, and Sponsor. 
 
 <!-- Project Requirements -->
 ## Project Requirements
 
+Holds the Project Requirements in the form of the Project Proposal, this is what the team set out in January 2021 to accomplish. 
+
 <!-- Project Schedule -->
-## Project Requirements
+## Project Schedule 
+
+Contains a MS Project file of the teams initial project schedule. The PDF version can be found in the Project Requirements folder. 
 
 <!-- Rc Physical Model -->
 ## RC Physical Model
 
+The RC Physical Model Folder is primarily where information on sensors and hardwares are stored. It contains the following folders and documents:
+* AOA Sensor
+  *  3D Model of the Angle of Attack Wind Vane that was attempted be mounted on the plane
+  *  Code to connect the Angle of Attack to the PX4
+  *  Relevant information to the Angle of Attack Sensor
+* Sensor Noise Analysis Report
+* Physical measurements recorded of the Small Scale F16 
+* Relating Documents to the PX4 Mini
+
 <!-- Resources -->
 ## Resources
+
+The Resources folder provides pivotal information for the students and Galois.
+* ECE 412 Documents contains references for the students from the ECE 412 Professors, Andrew Greenberg and Mark Faust
+* Galois Documents provides the initial Capstone Proposal from Galois to the students and an inital SITL/HITL information
+* Images contains all the images taken of the physical model during the duration of the capstone project
+* Student Documents contains notes and references used by the Capstone Team 
+
 
 <!-- SITL-->
 ## SITL
 
+The software in the loop file contains information relating to the capstone team's exploration of SITL. The team attempted to implement a F16 model in SITL, but production of that model was stopped short in March. 
+
+The folder contains:
+* Flight Path File
+  * A folder for flight paths when the model was upfitted to fly autonomously - this currently holds one racetrack pattern
+* Practice SITL Log Files
+  * A collection of log files from the early explorations of SITL- these were all explored in ubuntu with flight gear and qgroundcontrol  
+* RC F16 FDM
+  * Attempt to implement F16 Model in SITL
+
 <!-- Testing Documentation-->
 ## Testing Documentation
+
+This file holds the flight test plan for system identification and an initial test plan for the system. The initial test plan was not used and has been archived here for reference. 
+
+<!-- USAGE EXAMPLES -->
+## Usage
+
+To run the nonlinear model of the scaled down flight, download the files out of the [Matlab Script](https://github.com/camdeno/F16Capstone/tree/main/Mathematical%20Model/Matlab%20Script). Then, enter initial conditions, U and x0, in the F16Constants script. Enter 1 or 2 for the model you like to run and view the outputs. 
 
 <!-- ROADMAP -->
 ## Roadmap
 
 See the [open issues](https://github.com/camdeno/F16Capstone/issues) for a list of proposed features (and known issues).
 
-
-
-
-
 <!-- License -->
 ## License 
 Distributed under the MIT License. See `LICENSE` for more information.
 
-<!-- -->
+<!--Acknowledgements -->
+## Acknowledgements 
+
+Our capstone team would like to express our deepest gratitude towards Dr. James McNames of Portland State and Michal Podhradsky of Galois. Without Dr. McNames' unwavering support and Michal's extensive knowledge. Without their help, none of this would be possible. 
+
 [Readme Template](https://github.com/othneildrew/Best-README-Template)
-
-
-
-
 
 
