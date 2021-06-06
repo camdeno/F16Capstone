@@ -7,7 +7,7 @@ To view the assembly of all components in the model, please view [Instrumentatio
 
 
 ## Pixhawk4
-Pixhawk4 using guied files. Downloaded from [offical webside](https://docs.px4.io/v1.9.0/en/).
+This folder include the Pixhawk4 instruction files. All these files downloaded from Pixhawk4 offical webside. To get more information, please go to [Pixhawk4 offical webside](https://docs.px4.io/v1.9.0/en/)
 
 * [Pixhawk4 Quick Start Guide](https://github.com/camdeno/F16Capstone/blob/main/RC%20Physical%20Model/Pixhawk%204/Pixhawk4-quickstartguide.pdf)
 * [Pixhawk4 Datasheet](https://github.com/camdeno/F16Capstone/blob/main/RC%20Physical%20Model/Pixhawk%204/Pixhawk4-DataSheet.pdf)
