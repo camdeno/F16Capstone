@@ -1,6 +1,6 @@
 # Weekly Meeting Agenda
 The weekly meeting record of the project. 
-There are 3 sections in each weekly meeting: 
+There are 3 main job in each weekly meeting: 
 1. Review last weeks results. 
 2. Discuss the problems encountered.
 3. Plane for next week's tasks.
