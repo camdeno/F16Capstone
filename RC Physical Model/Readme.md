@@ -27,3 +27,9 @@ These are the fileds include in the AoA sensor folder:
   * [Vane v3.f3d](https://github.com/camdeno/F16Capstone/blob/main/RC%20Physical%20Model/AOA%20Sensor/3D%20Model/Vane%20v3.f3d): The 3D modle of vane made by Fusion 360.
   * [Vane v3.stl](https://github.com/camdeno/F16Capstone/blob/main/RC%20Physical%20Model/AOA%20Sensor/3D%20Model/Vane%20v3.stl): The 3D modle of vane used for 3D print.
   * [MA3 with Vane.png](https://github.com/camdeno/F16Capstone/blob/main/RC%20Physical%20Model/AOA%20Sensor/3D%20Model/MA3%20with%20Vane.png)：The 3D diagram of AoA composed of angle sensor and vane
+
+## Measurements
+The measurement consists of two parts: Model measurenments and Inertial Moment Measurements
+* [Model Measurement](https://github.com/camdeno/F16Capstone/tree/main/RC%20Physical%20Model/Measurements/Physical%20Model%20Measurements): The size, shape and weight of the scaled-down F-16 physical model.
+* [Inertial Moment Measurement](https://github.com/camdeno/F16Capstone/blob/main/RC%20Physical%20Model/Measurements/Inertial_Moment_Measurements__F16_Measurement_Instructions.pdf):Inertial moments are key components when understanding the 
+ight dynamics of an Unmanned Aerial Vehicle. Inertial Moments determine the responsiveness to a plane's control surfaces. For example, the inertial moment, Iyy, controls the planes responsiveness to pitch and determines how fast or slow the plane will respond to the elevator controls. For more information, please check [inertial moment measurment report](https://github.com/camdeno/F16Capstone/blob/main/RC%20Physical%20Model/Measurements/Inertial_Moment_Measurements__F16_Measurement_Instructions.pdf). 
