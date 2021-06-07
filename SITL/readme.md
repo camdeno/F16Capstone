@@ -1,6 +1,8 @@
 # Software-in-the-loop (SITL)
 
-When running in SITL the sensor data comes from a flight dynamics model in a flight simulator.The Capstone team use [Flightgear](https://docs.px4.io/master/en/simulation/flightgear.html) and [Gezabo](https://docs.px4.io/master/en/simulation/gazebo.html) as a simulator for SITL simulation. For more information, Please check the [simulation section](https://docs.px4.io/master/en/simulation/) of PX4 User Guid.
+When running in SITL the sensor data comes from a flight dynamics model in a flight simulator.
+
+The Capstone team use [Flightgear](https://docs.px4.io/master/en/simulation/flightgear.html) and [Gezabo](https://docs.px4.io/master/en/simulation/gazebo.html) as a simulator for SITL simulation. For more information, Please check the [simulation section](https://docs.px4.io/master/en/simulation/) of PX4 User Guid.
 
 The software in the loop file contains information relating to the capstone team's exploration of SITL. The team attempted to implement a F16 model in SITL, but production of that model was stopped short in March. 
 
