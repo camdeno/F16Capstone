@@ -14,4 +14,14 @@ This folder include the Pixhawk4 instruction files. All these files downloaded f
 * [Pixhawk4 Pinouts](https://github.com/camdeno/F16Capstone/blob/main/RC%20Physical%20Model/Pixhawk%204/Pixhawk4-Pinouts.pdf)
 * [Pixhawk4 GPS Quick Start Guide](https://github.com/camdeno/F16Capstone/blob/main/RC%20Physical%20Model/Pixhawk%204/Pixhawk4-GPS-Quick-Start-Guide.pdf)
 
-## AOA Sensor
+## AoA Sensor
+AoA (Angle of Attack)sensor is used to detect the direction of airflow in flight. In this F-16 physical model, the AoA sensor is composed of an PWM signal input angle sensor equipped with a vane. There are two guides in the AoA sensor folder explain how to use the AoA sensor.
+
+These are the fileds include in the AoA sensor folder:
+
+* [MA3_datasheet.pdf](https://github.com/camdeno/F16Capstone/blob/main/RC%20Physical%20Model/AOA%20Sensor/MA3_datasheet.pdf): Datasheet for angle sensor dowmloaded from MA3 angle sensor [offical product website](https://www.usdigital.com/products/encoders/absolute/shaft/MA3).
+* [Angle Sensor Connection Guide.pdf] (https://github.com/camdeno/F16Capstone/blob/main/RC%20Physical%20Model/AOA%20Sensor/Angle%20Sensor%20Connection%20Guide.pdf): Introduced the wire connection and test method of angle sensor.
+* [AOA Log Data Recording Guide.pdf](https://github.com/camdeno/F16Capstone/blob/main/RC%20Physical%20Model/AOA%20Sensor/AOA%20Log%20Data%20Recording%20Guide.pdf): Introduce how to record the testing data from AoA sensor.
+* 3D Model
+  * [MA3-X-125-B.f3z](https://github.com/camdeno/F16Capstone/blob/main/RC%20Physical%20Model/AOA%20Sensor/3D%20Model/MA3-X-125-B.f3z): The 3D Model of angle sensor dowmloaded from MA3 angle sensor [offical product website](https://www.usdigital.com/products/encoders/absolute/shaft/MA3).
+  * 
