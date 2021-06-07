@@ -35,5 +35,6 @@ The measurement consists of two parts: Model measurenments and Inertial Moment M
 
 ## Noise Analysis
 The purpose of noise analysis is to improve the accuracy of data in real flight tests. The noise analysis used 8 hours static data, analyzed all sensors in Mean Values, Standard Deviation, Power Spectral Density, and Data Distribution. For more information, Please check the [Sensor Noise Analysis Report](https://github.com/camdeno/F16Capstone/blob/main/RC%20Physical%20Model/Noise%20Analysis/Sensor%20Noise%20Analysis%203nd%20version.pdf).
+
 The calculation of noise analysis is calculated using Matlab. [Here](https://github.com/camdeno/F16Capstone/blob/main/RC%20Physical%20Model/Noise%20Analysis/noise%20analysis.m) is the noise analysis Matlab scripe. It can be used if additional sensors adding in the future.
 
