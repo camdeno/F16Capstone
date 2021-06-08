@@ -194,7 +194,7 @@ Distributed under the MIT License. See `LICENSE` for more information.
 <!--Acknowledgements -->
 ## Acknowledgements 
 
-Our capstone team would like to express our deepest gratitude towards Dr. James McNames of Portland State and Michal Podhradsky of Galois. Without Dr. McNames' unwavering support and Michal's extensive knowledge. Without their help, none of this would be possible. 
+Our capstone team would like to express our deepest gratitude towards Dr. James McNames of Portland State and Michal Podhradsky of Galois. Without Dr. McNames' unwavering support and Michal's extensive knowledge, none of this would be possible. 
 
 [Readme Template](https://github.com/othneildrew/Best-README-Template)
 
