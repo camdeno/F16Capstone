@@ -1,1 +1,1 @@
-Place for sys id 
+Outputs of FlightAxis are stored as MAT and CSV files F16_sysid is an initial attempt at system Identification FlightLogAnalysis and ReadCSV have been replaced by prep_flight_data and should not be used to handle CSV and Matfiles prep_flight_data loads a MAT or a CSV file from FlightAxis and allows the user to use the brushing tool to save the file as a specified name inputsdlg is a necessary file with the prep_flight_data to load a file
