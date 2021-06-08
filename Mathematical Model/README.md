@@ -5,6 +5,7 @@ And an additional script demostrating the use of MATLAbs SYS ID tool box to deve
 
 # Matlab Script
 Mat files were used to send signals to FlightAxis to use in System Identification
+Contains Trimmer function script
   * F16Constants is used to call the simulink models and provide them initial conditions
     * Testsimulation.slx is the full scale simulink model, it includes control limits, and the state derivative file
     * F16Simulation_SC.slx is the small scale simulink model, it includes control limits, and the small scale state derivative file
