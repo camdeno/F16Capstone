@@ -14,8 +14,17 @@ Mat files were used to send signals to FlightAxis to use in System Identificatio
 This was used at the start of the project and was a start at converting the fortran state derivatives model to python. This work was stopped early in the project, but has been archived in the repository
 
 # Simulation Results
-Stores the output of the cost function of the small and large scale files
-Stores steady state and impulse responses of the large and small scale files
+Large Scale
+  * Contains simulation results from the full scale f-16 RC model
+
+Small Scale
+  * Contains simulation results from the small scale f-16 RC model
+ 
+Comparison for Simulink and Realflight
+  * Report adressing the differences between the Simulink model and the behaviors of the Realflight 9.5 sim
+
+Trimmer Function Outputs
+  * Is an excel file that contains the outputs from the trimmer function used to dial in 
 
 # System Identification
 The System Identification folder is used to store the outputs of FlightAxis
